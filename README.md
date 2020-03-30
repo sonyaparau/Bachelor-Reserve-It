@@ -1,6 +1,6 @@
 # ReserveIt App
 
-Makeing a reservation now is easier than ever :)
+Making a reservation now is easier than ever :)
 
 ## Getting Started
 
