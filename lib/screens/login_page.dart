@@ -10,6 +10,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final formKey = new GlobalKey<FormState>();
+  final AuthService _authService = new AuthService();
+
+  // Phone mobile number must start with +4 and
+  // continue with 07 followed by 8 digits as it
+  //is a Romanian number
   RegExp phone_validator = new RegExp(
     r"\+407[0-9]{8}",
     caseSensitive: false,
@@ -17,8 +22,8 @@ class _LoginPageState extends State<LoginPage> {
   );
 
   String _phoneNumber;
-  String _verificationId;
   String _smsCode;
+  String _verificationId;
   bool _sentVerificationCode = false;
 
   @override
@@ -37,77 +42,43 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: !kIsWeb
-                          ? <Widget>[
-                                Image.asset('assets/reserve_logo.png'),
-                                SizedBox(
-                                  height: 10,
-                                )
-                              ] +
-                              getMobileForm() +
-                              [
-                                SizedBox(
-                                  height: 0,
-                                ),
-                                getGoogleButton(),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                getFacebookButton()
-                              ]
-                          : <Widget>[Image.asset('assets/reserve_logo.png')] +
-                              [
-                                getAnonymouslyButton(),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                getGoogleButton(),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                getFacebookButton()
-                              ]),
+                      children:
+                          //if the Platform is Android/Ios then allow logging in with phone number
+                          !kIsWeb
+                              ? <Widget>[
+                                    Image.asset('assets/reserve_logo.png'),
+                                    getSizedBox(10)
+                                  ] +
+                                  getMobileForm() +
+                                  [
+                                    getGoogleButton(),
+                                    getSizedBox(10),
+                                    getFacebookButton()
+                                  ]
+                              //if the Platform is Web then allow logging in anonymously
+                              : <Widget>[
+                                    Image.asset('assets/reserve_logo.png')
+                                  ] +
+                                  [
+                                    getAnonymousButton(),
+                                    getSizedBox(10),
+                                    getGoogleButton(),
+                                    getSizedBox(10),
+                                    getFacebookButton()
+                                  ]),
                 )))));
   }
 
-  Future<void> verifyPhone(phoneNumber) async {
-    final PhoneVerificationCompleted verified = (AuthCredential authResult) {
-      AuthService().signIn(authResult);
-    };
-
-    final PhoneVerificationFailed verificationFailed =
-        (AuthException authException) {
-      print('${authException.message}');
-    };
-
-    final PhoneCodeSent smsSent = (String verId, [int forceResend]) {
-      this._verificationId = verId;
-      setState(() {
-        this._sentVerificationCode = true;
-      });
-    };
-
-    final PhoneCodeAutoRetrievalTimeout autoTimeout = (String verId) {
-      this._verificationId = verId;
-    };
-
-    await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        timeout: const Duration(seconds: 5),
-        verificationCompleted: verified,
-        verificationFailed: verificationFailed,
-        codeSent: smsSent,
-        codeAutoRetrievalTimeout: autoTimeout);
-  }
-
   /*
-  * Return the button for the Login with
+  * Returns the button for login with
   * Facebook option.
   * */
   Widget getFacebookButton() {
     return OutlineButton(
       splashColor: Colors.grey,
-      onPressed: () => AuthService().initiateFacebookLogin(),
+      onPressed: () async {
+        await _authService.signInWithFacebook();
+      },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
       borderSide: BorderSide(color: Colors.grey),
@@ -131,14 +102,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /*
-  * Return the button for the Login with
+  * Returns the button for the Login with
   * Google Account option.
   * */
   Widget getGoogleButton() {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        await AuthService().signInWithGoogle();
+        await _authService.signInWithGoogle();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
@@ -162,13 +133,20 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /*
+  * Returns the button for the verification of the
+  * phone number or the button for the logging in
+  * with the phone number.
+  *
+  * @param text - the text for the button
+  * */
   Widget getVerifyButton(String text) {
     return OutlineButton(
         splashColor: Colors.grey,
         onPressed: () {
           if (validateInput()) {
             _sentVerificationCode
-                ? AuthService().signInWithSmsCode(_smsCode, _verificationId)
+                ? _authService.signInWithSmsCode(_smsCode, _verificationId)
                 : verifyPhone(_phoneNumber);
           }
         },
@@ -192,11 +170,16 @@ class _LoginPageState extends State<LoginPage> {
         ));
   }
 
-  Widget getAnonymouslyButton() {
+  /*
+  * Returns the button for loging in
+  * anonymously. This button only exists
+  * for the web platform.
+  * */
+  Widget getAnonymousButton() {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        await AuthService().signInAnonymously();
+        await _authService.signInAnonymously();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
@@ -220,7 +203,8 @@ class _LoginPageState extends State<LoginPage> {
   /*
   * Validates the input of the form.
   * Phone number and code received in the SMS
-  *  are required in order to submit the form.
+  * are required in order to submit the form.
+  * Code received must have exactly 6 characters.
   * */
   bool validateInput() {
     final form = formKey.currentState;
@@ -232,6 +216,11 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
 
+  /*
+  * Returns the textfields for the phone
+  * number and the code verification. These are
+  * available only for the mobile platforms.
+  * */
   List<Widget> getMobileForm() {
     return [
           new TextFormField(
@@ -246,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             onSaved: (value) => _phoneNumber = value,
           ),
-          new SizedBox(height: 8)
+          getSizedBox(8)
         ] +
         [
           _sentVerificationCode
@@ -257,6 +246,8 @@ class _LoginPageState extends State<LoginPage> {
                       labelStyle: TextStyle(fontSize: 18)),
                   validator: (value) {
                     if (value.isEmpty) return 'SMS code cannot be empty!';
+                    if (value.length != 6)
+                      return 'SMS code must have 6 characters!';
                     return null;
                   },
                   onSaved: (value) => _smsCode = value,
@@ -264,11 +255,55 @@ class _LoginPageState extends State<LoginPage> {
               : Container()
         ] +
         [
-          SizedBox(height: 15),
+          getSizedBox(15),
           _sentVerificationCode
               ? getVerifyButton('Login')
-              : getVerifyButton('Submit'),
-          SizedBox(height: 10),
+              : getVerifyButton('Verify phone number'),
+          getSizedBox(15),
         ];
+  }
+
+  /*
+  * Returns a SizedBox with the height given
+  * as a parameter. SizedBox is uses as a padding
+  * between to widgets.
+  * */
+  Widget getSizedBox(double height) {
+    return new SizedBox(height: height);
+  }
+
+  /*
+  * Login method with mobile number. A verification
+  * code is sent via SMS and the user must enter
+  * it in the application in order to log in.
+  * */
+  Future<void> verifyPhone(phoneNumber) async {
+    final PhoneVerificationCompleted verified = (AuthCredential authResult) {
+      _authService.signIn(authResult);
+    };
+
+    final PhoneVerificationFailed verificationFailed =
+        (AuthException authException) {
+      print('${authException.message}');
+    };
+
+    final PhoneCodeSent smsSent = (String verId, [int forceResend]) {
+      this._verificationId = verId;
+      setState(() {
+        this._sentVerificationCode = true;
+      });
+    };
+
+    final PhoneCodeAutoRetrievalTimeout autoTimeout = (String verId) {
+      _verificationId = verId;
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verified,
+        verificationFailed: verificationFailed,
+        codeSent: smsSent,
+        codeAutoRetrievalTimeout: autoTimeout);
   }
 }

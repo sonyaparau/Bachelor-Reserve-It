@@ -5,16 +5,23 @@ import 'package:reserve_it_app/screens/dashboard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
+/*
+* Service for the Firebase Authentication.
+* */
 class AuthService {
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  FirebaseAuth loggedUser = FirebaseAuth.instance;
-
-  bool isLoggedIn = false;
-
-  //Handles Authentication
+  /*
+  * Checks when the application is started
+  * if the user is already logged in.
+  * If the user is logged in with one of the
+  * sign in methods, then the application opens
+  * directly with the Dashboard Page. Otherwise,
+  * the application opens with the Login Page.
+  * */
   handleAuthentication() {
     return StreamBuilder(
-      stream: loggedUser.onAuthStateChanged,
+      stream: firebaseAuth.onAuthStateChanged,
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           return DashboardPage();
@@ -25,17 +32,12 @@ class AuthService {
     );
   }
 
-  //Sign out
-  signOut() {
-    loggedUser.signOut();
-  }
-
-  //sign in
+  // Sign in on Firebase with Credentials
   signIn(AuthCredential authCredential) {
-    loggedUser.signInWithCredential(authCredential);
+    firebaseAuth.signInWithCredential(authCredential);
   }
 
-  //sign in with Google Account
+  // Sign in with Google Account
   Future<bool> signInWithGoogle() async {
     try {
       GoogleSignIn googleSignIn = GoogleSignIn();
@@ -43,56 +45,65 @@ class AuthService {
       if (account == null) {
         return false;
       }
-      AuthResult result = await loggedUser.signInWithCredential(
+      AuthResult result = await firebaseAuth.signInWithCredential(
           GoogleAuthProvider.getCredential(
               idToken: (await account.authentication).idToken,
               accessToken: (await account.authentication).accessToken));
       if (result.user == null) return false;
       return true;
     } catch (exception) {
+      print(exception.toString());
       return false;
     }
   }
 
-  //sign in with verificating the phone number
+  // Sign in with Phone number
   signInWithSmsCode(smsCode, verId) {
     AuthCredential authCredential = PhoneAuthProvider.getCredential(
         verificationId: verId, smsCode: smsCode);
     signIn(authCredential);
   }
 
-  void initiateFacebookLogin() async {
+  // Sign in with Facebook Account
+  Future<bool> signInWithFacebook() async {
     FacebookLogin facebookLogin = FacebookLogin();
     FacebookLoginResult facebookLoginResult =
-    await facebookLogin.logIn(['email']);
+        await facebookLogin.logIn(['email']);
+
+    bool loggedInFacebook = false;
+
     switch (facebookLoginResult.status) {
       case FacebookLoginStatus.error:
-        print("Error");
-        onLoginStatusChanged(false);
+        loggedInFacebook = false;
         break;
       case FacebookLoginStatus.cancelledByUser:
-        print("CancelledByUser");
-        onLoginStatusChanged(false);
+        loggedInFacebook = false;
         break;
       case FacebookLoginStatus.loggedIn:
-        print("LoggedIn");
-        onLoginStatusChanged(true);
+        loggedInFacebook = true;
         break;
     }
+    if (loggedInFacebook) {
+      FacebookAccessToken facebookAccessToken = facebookLoginResult.accessToken;
+      AuthCredential authCredential = FacebookAuthProvider.getCredential(
+          accessToken: facebookAccessToken.token);
+      signIn(authCredential);
+    }
+    return loggedInFacebook;
   }
 
-  void onLoginStatusChanged(bool isLoggedIn) {
-      this.isLoggedIn = isLoggedIn;
-  }
-
-  // sign in anonymously for the web version
+  // Sign in anonymously for the web version
   Future<String> signInAnonymously() async {
     try {
-      AuthResult result = await loggedUser.signInAnonymously();
+      AuthResult result = await firebaseAuth.signInAnonymously();
       return result.user.uid;
     } catch (exception) {
-      print('ERROR!');
       return exception.toString();
     }
+  }
+
+  // Sign out from the application
+  signOut() {
+    firebaseAuth.signOut();
   }
 }
