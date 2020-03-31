@@ -62,9 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                                   [
                                     getAnonymousButton(),
                                     getSizedBox(10),
-                                    getGoogleButton(),
-                                    getSizedBox(10),
-                                    getFacebookButton()
+                                    getGoogleButton()
                                   ]),
                 )))));
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/services/auth.dart';
 
@@ -10,14 +11,21 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: RaisedButton(
-          child: Text('Sign Out'),
-          onPressed: () {
-            AuthService().signOut();
-          },
-        ),
-      ),
+      appBar:
+          AppBar(title: Text('Reserve It'), backgroundColor: Colors.deepPurple, actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.account_circle),
+              onPressed: () {
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: () {
+                AuthService().signOut();
+              },
+            )
+          ],),
+      backgroundColor: Colors.white,
     );
   }
 }
