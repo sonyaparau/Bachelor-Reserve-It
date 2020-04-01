@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "251104263226",
+    "firebase_url": "https://reserveit-9868d.firebaseio.com",
+    "project_id": "reserveit-9868d",
+    "storage_bucket": "reserveit-9868d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251104263226:android:8d24c108c3f33379fdc903",
+        "android_client_info": {
+          "package_name": "com.reserve.reserve_it_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "251104263226-siubpfumcp8rj0c6dadc1k9n8s7gdipo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqeeVXoWnSf1l5soXH6tzoYwyv3YR5eN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "251104263226-psalvktgingo1802v7u7911714o71mdd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

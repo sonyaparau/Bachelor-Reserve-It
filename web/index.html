@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="ReserveIt App">
+  <meta name="google-signin-client_id" content="251104263226-c8niqa7ui5ld4lleov8ah30khqip25js.apps.googleusercontent.com">
+
+  <link rel="shortcut icon" type="image/png" href="icons/profile.png"/>
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+  <title>ReserveIt</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
+
+<!-- Firebase SDK for Analytics -->
+<script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-analytics.js"></script>
+
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-auth.js"></script>
+
+<!-- Firebase Firestore for the database-->
+<script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-firestore.js"></script>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '920555135039710',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v6.0'
+    });
+    FB.AppEvents.logPageView();
+
+  };
+
+  (function(d, s, id){
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+<!-- Web app's Firebase configuration  -->
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyDt18jOVM-34UJbkWd1zbQ1-cw4d221Xnw",
+    authDomain: "reserveit-9868d.firebaseapp.com",
+    databaseURL: "https://reserveit-9868d.firebaseio.com",
+    projectId: "reserveit-9868d",
+    storageBucket: "reserveit-9868d.appspot.com",
+    messagingSenderId: "251104263226",
+    appId: "1:251104263226:web:885efdd32dc7c51afdc903",
+    measurementId: "G-ZMFY9S2ZZB"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  // var auth = firebase.auth();
+
+</script>
+
+<!-- Google Platform Library to integrate Google Sign-In   -->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<!-- Facebook SDK for logging in with Facebook   -->
+<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+<script src="main.dart.js" type="application/javascript"></script>
+</body>
+</html>

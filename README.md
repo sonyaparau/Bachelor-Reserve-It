@@ -1,3 +1,9 @@
+# ReserveIt App
+
+Making a reservation now is easier than ever :)
+
+## Getting Started
+
 This is the beginning of a wonderful journey :))
 
-Hai sa facem o rezervare
+Let's make a reservation!
