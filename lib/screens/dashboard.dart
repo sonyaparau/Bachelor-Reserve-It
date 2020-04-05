@@ -159,7 +159,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(fontSize: 20.0)),
                             SizedBox(width: 12.0),
                             Container(
-                                width: !kIsWeb ? 108 : 85,
+                                width: 105,
                                 child: TextField(
                                     controller: numberController,
                                     readOnly: false,
