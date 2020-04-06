@@ -49,6 +49,10 @@ class _DashboardPageState extends State<DashboardPage> {
             onPressed: () {},
           ),
           IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+          IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () {
               logoutDialog();
