@@ -42,14 +42,26 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: <Widget>[Image.asset('assets/app_logo.png', fit: BoxFit.contain,
-            height: 32, color: Colors.white,),  Container(
-              padding: const EdgeInsets.all(8.0), child: Text('ReserveIt'))],
+          children: <Widget>[
+            Image.asset(
+              'assets/app_logo.png',
+              fit: BoxFit.contain,
+              height: 32,
+              color: Colors.blueGrey,
+            ),
+            Container(
+                padding: const EdgeInsets.all(8.0), child: Text('ReserveIt'))
+          ],
         ),
         backgroundColor: Colors.deepPurple,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.account_circle),
+            icon: AuthService.urlProfilePhoto != null
+                ? new CircleAvatar(
+                    backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
+              radius: 15.0, backgroundColor: Colors.white,
+            )
+                : Icon(Icons.account_circle),
             onPressed: () {},
           ),
           IconButton(

@@ -11,6 +11,8 @@ import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 class AuthService {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+  static String urlProfilePhoto;
+
   /*
   * Checks when the application is started
   * if the user is already logged in.
@@ -33,8 +35,9 @@ class AuthService {
   }
 
   // Sign in on Firebase with Credentials
-  signIn(AuthCredential authCredential) {
-    firebaseAuth.signInWithCredential(authCredential);
+  signIn(AuthCredential authCredential) async{
+    AuthResult result = await firebaseAuth.signInWithCredential(authCredential);
+    urlProfilePhoto = result.user.photoUrl;
   }
 
   // Sign in with Google Account
@@ -49,6 +52,7 @@ class AuthService {
           GoogleAuthProvider.getCredential(
               idToken: (await account.authentication).idToken,
               accessToken: (await account.authentication).accessToken));
+      urlProfilePhoto = result.user.photoUrl;
       if (result.user == null) return false;
       return true;
     } catch (exception) {
