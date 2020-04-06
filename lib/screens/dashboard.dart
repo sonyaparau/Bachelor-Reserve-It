@@ -41,7 +41,11 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ReserveIt'),
+        title: Row(
+          children: <Widget>[Image.asset('assets/app_logo.png', fit: BoxFit.contain,
+            height: 32, color: Colors.white,),  Container(
+              padding: const EdgeInsets.all(8.0), child: Text('ReserveIt'))],
+        ),
         backgroundColor: Colors.deepPurple,
         actions: <Widget>[
           IconButton(
