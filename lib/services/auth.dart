@@ -34,12 +34,6 @@ class AuthService {
     );
   }
 
-  // Sign in on Firebase with Credentials
-  signIn(AuthCredential authCredential) async{
-    AuthResult result = await firebaseAuth.signInWithCredential(authCredential);
-    urlProfilePhoto = result.user.photoUrl;
-  }
-
   // Sign in with Google Account
   Future<bool> signInWithGoogle() async {
     try {
@@ -61,11 +55,10 @@ class AuthService {
     }
   }
 
-  // Sign in with Phone number
-  signInWithSmsCode(smsCode, verId) {
-    AuthCredential authCredential = PhoneAuthProvider.getCredential(
-        verificationId: verId, smsCode: smsCode);
-    signIn(authCredential);
+  // Sign in on Firebase with Credentials
+  signIn(AuthCredential authCredential) async {
+    AuthResult result = await firebaseAuth.signInWithCredential(authCredential);
+    urlProfilePhoto = result.user.photoUrl;
   }
 
   // Sign in with Facebook Account

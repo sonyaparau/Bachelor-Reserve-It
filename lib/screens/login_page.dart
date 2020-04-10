@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reserve_it_app/services/auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:reserve_it_app/utils/loading.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -26,45 +28,49 @@ class _LoginPageState extends State<LoginPage> {
   String _verificationId;
   bool _sentVerificationCode = false;
 
+  bool _loading = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(backgroundColor: Colors.deepPurple),
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomPadding: true,
-        body: new Center(
-            child: new Container(
-                width: !kIsWeb ? 320 : 370,
-                padding: new EdgeInsets.all(4.0),
-                child: SingleChildScrollView(
-                    child: new Form(
-                  key: formKey,
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:
-                          //if the Platform is Android/Ios then allow logging in with phone number
-                          !kIsWeb
-                              ? <Widget>[
-                                    Image.asset('assets/reserve_logo.png'),
-                                    getSizedBox(10)
-                                  ] +
-                                  getMobileForm() +
-                                  [
-                                    getGoogleButton(),
-                                    getSizedBox(10),
-                                    getFacebookButton()
-                                  ]
-                              //if the Platform is Web then allow logging in anonymously
-                              : <Widget>[
-                                    Image.asset('assets/reserve_logo.png')
-                                  ] +
-                                  [
-                                    getAnonymousButton(),
-                                    getSizedBox(10),
-                                    getGoogleButton()
-                                  ]),
-                )))));
+    return _loading
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(backgroundColor: Colors.deepPurple),
+            backgroundColor: Colors.white,
+            resizeToAvoidBottomPadding: true,
+            body: new Center(
+                child: new Container(
+                    width: !kIsWeb ? 320 : 370,
+                    padding: new EdgeInsets.all(4.0),
+                    child: SingleChildScrollView(
+                        child: new Form(
+                      key: formKey,
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children:
+                              //if the Platform is Android/Ios then allow logging in with phone number
+                              !kIsWeb
+                                  ? <Widget>[
+                                        Image.asset('assets/reserve_logo.png'),
+                                        getSizedBox(10)
+                                      ] +
+                                      getMobileForm() +
+                                      [
+                                        getGoogleButton(),
+                                        getSizedBox(10),
+                                        getFacebookButton()
+                                      ]
+                                  //if the Platform is Web then allow logging in anonymously
+                                  : <Widget>[
+                                        Image.asset('assets/reserve_logo.png')
+                                      ] +
+                                      [
+                                        getAnonymousButton(),
+                                        getSizedBox(10),
+                                        getGoogleButton()
+                                      ]),
+                    )))));
   }
 
   /*
@@ -75,7 +81,15 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        await _authService.signInWithFacebook();
+        setState(() {
+          _loading = true;
+        });
+        dynamic result = await _authService.signInWithFacebook();
+        if (result == null) {
+          setState(() {
+            _loading = false;
+          });
+        }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
@@ -107,7 +121,15 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        await _authService.signInWithGoogle();
+        setState(() {
+          _loading = true;
+        });
+        dynamic result = await _authService.signInWithGoogle();
+        if (result == null) {
+          setState(() {
+            _loading = false;
+          });
+        }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
@@ -143,9 +165,19 @@ class _LoginPageState extends State<LoginPage> {
         splashColor: Colors.grey,
         onPressed: () {
           if (validateInput()) {
-            _sentVerificationCode
-                ? _authService.signInWithSmsCode(_smsCode, _verificationId)
-                : verifyPhone(_phoneNumber);
+            if (_sentVerificationCode) {
+              setState(() {
+                _loading = true;
+              });
+              dynamic result = signInWithSmsCode(_smsCode, _verificationId);
+              if (result == null) {
+                setState(() {
+                  _loading = false;
+                });
+              }
+            } else {
+              verifyPhone(_phoneNumber);
+            }
           }
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -177,7 +209,15 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        await _authService.signInAnonymously();
+        setState(() {
+          _loading = true;
+        });
+        dynamic result = await _authService.signInAnonymously();
+        if (result == null) {
+          setState(() {
+            _loading = false;
+          });
+        }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
@@ -277,7 +317,7 @@ class _LoginPageState extends State<LoginPage> {
   * */
   Future<void> verifyPhone(phoneNumber) async {
     final PhoneVerificationCompleted verified = (AuthCredential authResult) {
-      _authService.signIn(authResult);
+      signIn(authResult);
     };
 
     final PhoneVerificationFailed verificationFailed =
@@ -303,5 +343,46 @@ class _LoginPageState extends State<LoginPage> {
         verificationFailed: verificationFailed,
         codeSent: smsSent,
         codeAutoRetrievalTimeout: autoTimeout);
+  }
+
+  // Sign in with Phone number
+  signInWithSmsCode(smsCode, verId) {
+    AuthCredential authCredential = PhoneAuthProvider.getCredential(
+        verificationId: verId, smsCode: smsCode);
+    return signIn(authCredential);
+  }
+
+  // Sign in on Firebase with Credentials
+  signIn(AuthCredential authCredential) async {
+    await _authService.firebaseAuth
+        .signInWithCredential(authCredential)
+        .then((AuthResult value) {})
+        .catchError((onError) {
+      setState(() {
+        _loading = false;
+      });
+      getPopup('Something went wrong. Please try again!');
+    });
+  }
+
+  // returns a dialog if the login was not successfully
+  Widget getPopup(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Problem logging in"),
+          content: new Text(message),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 }

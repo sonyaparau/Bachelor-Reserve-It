@@ -27,9 +27,9 @@ dependencies:
   firebase_auth_web: 0.1.2
   firebase_core:
   google_sign_in:
-#  firebase_ui:
   flutter_facebook_login:
   flutter_webview_plugin:
+  flutter_spinkit: "^4.1.2"
 
 
 dev_dependencies:
