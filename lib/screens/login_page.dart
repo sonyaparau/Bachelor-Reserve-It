@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/services/auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:reserve_it_app/services/user_service.dart';
+import 'package:reserve_it_app/utils/custom_widgets.dart';
 import 'package:reserve_it_app/utils/loading.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +16,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final formKey = new GlobalKey<FormState>();
   final AuthService _authService = new AuthService();
+  final CustomWidgets _utils = new CustomWidgets();
 
   // Phone mobile number must start with +4 and
   // continue with 07 followed by 8 digits as it
@@ -27,7 +31,6 @@ class _LoginPageState extends State<LoginPage> {
   String _smsCode;
   String _verificationId;
   bool _sentVerificationCode = false;
-
   bool _loading = false;
 
   @override
@@ -53,12 +56,12 @@ class _LoginPageState extends State<LoginPage> {
                               !kIsWeb
                                   ? <Widget>[
                                         Image.asset('assets/reserve_logo.png'),
-                                        getSizedBox(10)
+                                        _utils.getHeightSizedBox(10.0)
                                       ] +
                                       getMobileForm() +
                                       [
                                         getGoogleButton(),
-                                        getSizedBox(10),
+                                        _utils.getHeightSizedBox(10.0),
                                         getFacebookButton()
                                       ]
                                   //if the Platform is Web then allow logging in anonymously
@@ -67,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ] +
                                       [
                                         getAnonymousButton(),
-                                        getSizedBox(10),
+                                        _utils.getHeightSizedBox(10.0),
                                         getGoogleButton()
                                       ]),
                     )))));
@@ -81,14 +84,10 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        setState(() {
-          _loading = true;
-        });
+        setLoadingState(true);
         dynamic result = await _authService.signInWithFacebook();
         if (result == null) {
-          setState(() {
-            _loading = false;
-          });
+          setLoadingState(false);
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -121,14 +120,10 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        setState(() {
-          _loading = true;
-        });
+        setLoadingState(true);
         dynamic result = await _authService.signInWithGoogle();
         if (result == null) {
-          setState(() {
-            _loading = false;
-          });
+          setLoadingState(false);
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -166,14 +161,10 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: () {
           if (validateInput()) {
             if (_sentVerificationCode) {
-              setState(() {
-                _loading = true;
-              });
+              setLoadingState(true);
               dynamic result = signInWithSmsCode(_smsCode, _verificationId);
               if (result == null) {
-                setState(() {
-                  _loading = false;
-                });
+                setLoadingState(false);
               }
             } else {
               verifyPhone(_phoneNumber);
@@ -209,14 +200,10 @@ class _LoginPageState extends State<LoginPage> {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () async {
-        setState(() {
-          _loading = true;
-        });
+        setLoadingState(true);
         dynamic result = await _authService.signInAnonymously();
         if (result == null) {
-          setState(() {
-            _loading = false;
-          });
+          setLoadingState(false);
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -273,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             onSaved: (value) => _phoneNumber = value,
           ),
-          getSizedBox(8)
+          _utils.getHeightSizedBox(8.0)
         ] +
         [
           _sentVerificationCode
@@ -293,21 +280,12 @@ class _LoginPageState extends State<LoginPage> {
               : Container()
         ] +
         [
-          getSizedBox(15),
+          _utils.getHeightSizedBox(15.0),
           _sentVerificationCode
               ? getVerifyButton('Login')
               : getVerifyButton('Verify phone number'),
-          getSizedBox(15),
+          _utils.getHeightSizedBox(15.0),
         ];
-  }
-
-  /*
-  * Returns a SizedBox with the height given
-  * as a parameter. SizedBox is uses as a padding
-  * between to widgets.
-  * */
-  Widget getSizedBox(double height) {
-    return new SizedBox(height: height);
   }
 
   /*
@@ -317,7 +295,7 @@ class _LoginPageState extends State<LoginPage> {
   * */
   Future<void> verifyPhone(phoneNumber) async {
     final PhoneVerificationCompleted verified = (AuthCredential authResult) {
-      signIn(authResult);
+      signInWithPhoneOption(authResult);
     };
 
     final PhoneVerificationFailed verificationFailed =
@@ -349,39 +327,51 @@ class _LoginPageState extends State<LoginPage> {
   signInWithSmsCode(smsCode, verId) {
     AuthCredential authCredential = PhoneAuthProvider.getCredential(
         verificationId: verId, smsCode: smsCode);
-    return signIn(authCredential);
+    return signInWithPhoneOption(authCredential);
   }
 
   // Sign in on Firebase with Credentials
-  signIn(AuthCredential authCredential) async {
+  signInWithPhoneOption(AuthCredential authCredential) async {
     await _authService.firebaseAuth
         .signInWithCredential(authCredential)
-        .then((AuthResult value) {})
-        .catchError((onError) {
-      setState(() {
-        _loading = false;
-      });
-      getPopup('Something went wrong. Please try again!');
+        .then((AuthResult value) {
+      AuthService.urlProfilePhoto = value.user.photoUrl;
+      User user = new User(
+          uid: value.user.uid,
+          email: value.user.email,
+          phone: value.user.phoneNumber,
+          photoUrl: value.user.photoUrl);
+      UserService().addUser(user);
+    }).catchError((onError) {
+      setLoadingState(false);
+      _utils.getPopup(
+          'Problem logging in',
+          'Something went wrong. Please try again!',
+          context,
+          [getFlatButton('OK')]);
     });
   }
 
-  // returns a dialog if the login was not successfully
-  Widget getPopup(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: new Text("Problem logging in"),
-          content: new Text(message),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
+  /*
+  * Sets the Loading screen
+  * variable
+  * */
+  setLoadingState(bool isLoading) {
+    setState(() {
+      _loading = isLoading;
+    });
+  }
+
+  /*
+  * Returns a flat button for the
+  * AlertDialog which appears when
+  * the login process is not successful.
+  * */
+  Widget getFlatButton(String text) {
+    return new FlatButton(
+      child: new Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
       },
     );
   }

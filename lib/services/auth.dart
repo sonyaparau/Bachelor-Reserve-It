@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/login_page.dart';
 import 'package:reserve_it_app/screens/dashboard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:reserve_it_app/services/user_service.dart';
 
 /*
 * Service for the Firebase Authentication.
 * */
 class AuthService {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  UserService userService = new UserService();
 
   static String urlProfilePhoto;
 
@@ -46,9 +49,18 @@ class AuthService {
           GoogleAuthProvider.getCredential(
               idToken: (await account.authentication).idToken,
               accessToken: (await account.authentication).accessToken));
-      urlProfilePhoto = result.user.photoUrl;
-      if (result.user == null) return false;
-      return true;
+      if (result.user == null)
+        return false;
+      else {
+        urlProfilePhoto = result.user.photoUrl;
+        User user = new User(
+            uid: result.user.uid,
+            email: result.user.email,
+            phone: result.user.phoneNumber,
+            photoUrl: result.user.photoUrl);
+        userService.addUser(user);
+        return true;
+      }
     } catch (exception) {
       print(exception.toString());
       return false;
@@ -59,6 +71,12 @@ class AuthService {
   signIn(AuthCredential authCredential) async {
     AuthResult result = await firebaseAuth.signInWithCredential(authCredential);
     urlProfilePhoto = result.user.photoUrl;
+    User user = new User(
+        uid: result.user.uid,
+        email: result.user.email,
+        phone: result.user.phoneNumber,
+        photoUrl: result.user.photoUrl);
+    userService.addUser(user);
   }
 
   // Sign in with Facebook Account
@@ -93,6 +111,7 @@ class AuthService {
   Future<String> signInAnonymously() async {
     try {
       AuthResult result = await firebaseAuth.signInAnonymously();
+      urlProfilePhoto = result.user.photoUrl;
       return result.user.uid;
     } catch (exception) {
       return exception.toString();

@@ -30,8 +30,7 @@ class Loading extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text('  Loading...',
-                    style:
-                        TextStyle(fontSize: 30.0, color: Colors.grey))
+                    style: TextStyle(fontSize: 30.0, color: Colors.grey))
               ],
             ),
           ),

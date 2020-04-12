@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/services/auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:reserve_it_app/utils/custom_widgets.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -10,18 +11,23 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final formKey = new GlobalKey<FormState>();
+  final prefereceController = new TextEditingController();
+  final numberController = new TextEditingController();
+  final CustomWidgets _utils = new CustomWidgets();
 
-  DateTime date;
-  TimeOfDay time;
   List<String> preferences = [];
-  final prefereceController = TextEditingController();
-  final numberController = TextEditingController();
 
+  DateTime _date;
+  TimeOfDay _time;
   bool _isCheckedPreference = false;
   bool _validateDate = false;
   bool _validateTime = false;
   bool _validateNb = false;
 
+  /*
+  * Number of people validator: it must be a
+  * positive, natural number, greater thna 0.
+  * */
   RegExp _nbPeopleValidator = new RegExp(
     r"[1-9][0-9]*",
     caseSensitive: false,
@@ -59,8 +65,9 @@ class _DashboardPageState extends State<DashboardPage> {
             icon: AuthService.urlProfilePhoto != null
                 ? new CircleAvatar(
                     backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
-              radius: 15.0, backgroundColor: Colors.white,
-            )
+                    radius: 15.0,
+                    backgroundColor: Colors.white,
+                  )
                 : Icon(Icons.account_circle),
             onPressed: () {},
           ),
@@ -91,93 +98,94 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: <Widget>[
                         Text('Find your table for \n     any occasion',
                             style: TextStyle(fontSize: 30.0)),
-                        SizedBox(height: 50),
+                        _utils.getHeightSizedBox(50.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Icon(Icons.calendar_today, size: 35.0),
-                            SizedBox(width: 5.0),
+                            _utils.getWitdthSizedBox(5.0),
                             Text("Date", style: TextStyle(fontSize: 20.0)),
-                            SizedBox(width: 12.0),
+                            _utils.getWitdthSizedBox(12.0),
                             Container(
                                 width: 200,
                                 child: TextField(
                                   readOnly: true,
                                   decoration: new InputDecoration(
-                                      hintText: date == null
+                                      hintText: _date == null
                                           ? 'No date chosen'
-                                          : date.toLocal().day.toString() +
+                                          : _date.toLocal().day.toString() +
                                               "." +
-                                              date.toLocal().month.toString() +
+                                              _date.toLocal().month.toString() +
                                               "." +
-                                              date.toLocal().year.toString(),
+                                              _date.toLocal().year.toString(),
                                       errorText: _validateDate
                                           ? 'Date is required!'
                                           : null),
                                   onTap: () {
                                     showDatePicker(
                                             context: context,
-                                            initialDate: date == null
+                                            initialDate: _date == null
                                                 ? DateTime.now()
-                                                : date,
+                                                : _date,
                                             firstDate: DateTime.now(),
                                             lastDate: DateTime(2025))
                                         .then((value) {
                                       setState(() {
-                                        date = value;
+                                        _date = value;
                                       });
                                     });
                                   },
                                 ))
                           ])
                         ]),
-                        SizedBox(height: 10),
+                        _utils.getHeightSizedBox(10.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Icon(
                               Icons.access_time,
                               size: 35.0,
                             ),
-                            SizedBox(width: 5.0),
+                            _utils.getWitdthSizedBox(5.0),
                             Text("Time", style: TextStyle(fontSize: 20.0)),
-                            SizedBox(width: 10.0),
+                            _utils.getWitdthSizedBox(10.0),
                             Container(
                                 width: 200,
                                 child: TextField(
                                   readOnly: true,
                                   decoration: new InputDecoration(
-                                      hintText: time == null
+                                      hintText: _time == null
                                           ? 'No hour chosen'
-                                          : time.hour.toString() +
+                                          : _time.hour.toString() +
                                               ':' +
-                                              time.minute.toString(),
+                                              _time.minute.toString(),
                                       errorText: _validateTime
                                           ? 'Time is required!'
                                           : null),
                                   onTap: () {
                                     showTimePicker(
                                       context: context,
-                                      initialTime:
-                                          time == null ? TimeOfDay.now() : time,
+                                      initialTime: _time == null
+                                          ? TimeOfDay.now()
+                                          : _time,
                                     ).then((value) {
                                       setState(() {
-                                        time = value;
+                                        _time = value;
                                       });
                                     });
                                   },
                                 ))
                           ])
                         ]),
-                        SizedBox(height: 10),
+                        _utils.getHeightSizedBox(10.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Icon(
                               Icons.people_outline,
                               size: 35.0,
                             ),
-                            SizedBox(width: 5.0),
+                            _utils.getWitdthSizedBox(5.0),
                             Text("Number people",
                                 style: TextStyle(fontSize: 20.0)),
-                            SizedBox(width: 12.0),
+                            _utils.getWitdthSizedBox(12.0),
                             Container(
                                 width: 105,
                                 child: TextField(
@@ -191,21 +199,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                     style: TextStyle(color: Colors.grey)))
                           ])
                         ]),
-                        SizedBox(height: 10),
+                        _utils.getHeightSizedBox(12.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Icon(
                               Icons.scatter_plot,
                               size: 35.0,
                             ),
-                            SizedBox(width: 5.0),
+                            _utils.getWitdthSizedBox(5.0),
                             Text("What do you prefer?",
                                 style: TextStyle(fontSize: 20.0))
                           ])
                         ]),
-                        SizedBox(
-                          height: 10,
-                        ),
+                        _utils.getHeightSizedBox(10.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Container(
@@ -217,9 +223,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         hintText: !_isCheckedPreference
                                             ? 'Eg. Pizza, Beer, Desserts...'
                                             : ''))),
-                            SizedBox(
-                              width: 5.0,
-                            ),
+                            _utils.getWitdthSizedBox(5.0),
                             IconButton(
                               icon: Icon(Icons.check),
                               onPressed: () {
@@ -239,17 +243,17 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ])
                         ]),
-                        SizedBox(height: 10.0),
+                        _utils.getHeightSizedBox(10.0),
                         generateDynamicPreferences(),
-                        SizedBox(height: 35.0),
+                        _utils.getHeightSizedBox(35.0),
                         new OutlineButton(
                             splashColor: Colors.grey,
                             onPressed: () {
                               setState(() {
-                                date == null
+                                _date == null
                                     ? _validateDate = true
                                     : _validateDate = false;
-                                time == null
+                                _time == null
                                     ? _validateTime = true
                                     : _validateTime = false;
                                 _nbPeopleValidator.hasMatch(
@@ -293,32 +297,11 @@ class _DashboardPageState extends State<DashboardPage> {
   * to confirm the logout or to cancel it.
   * */
   void logoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Logout"),
-          content: new Text(
-              "Are you sure you want to log out from the application?"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Yes"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                AuthService().signOut();
-              },
-            ),
-            new FlatButton(
-              child: new Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
+    _utils.getPopup(
+        'Logout',
+        'Are you sure you want to log out from the application?',
+        context,
+        [getOkButton("Yes"), getCancelButton("No")]);
   }
 
   /*
@@ -355,11 +338,35 @@ class _DashboardPageState extends State<DashboardPage> {
   * */
   bool validateInput() {
     final form = formKey.currentState;
-
     if (form.validate()) {
       form.save();
       return true;
     }
     return false;
+  }
+
+  /*
+  * Returns an Ok button for the logout.
+  * */
+  Widget getOkButton(String text) {
+    return new FlatButton(
+      child: new Text(text),
+      onPressed: () {
+        Navigator.of(context).pop();
+        AuthService().signOut();
+      },
+    );
+  }
+
+  /*
+  * Returns a cancel button for the logout.
+  * */
+  Widget getCancelButton(String text) {
+    return new FlatButton(
+      child: new Text(text),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
   }
 }
