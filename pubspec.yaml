@@ -17,11 +17,15 @@ dependencies:
   firebase_auth: ^0.15.2
   firebase_auth_web: 0.1.2
   cloud_firestore:
+  firebase_storage:
   firebase_core:
   google_sign_in:
   flutter_facebook_login:
   flutter_webview_plugin:
   flutter_spinkit: "^4.1.2"
+  rating_bar:
+  location:
+  provider:
 
 
 dev_dependencies:

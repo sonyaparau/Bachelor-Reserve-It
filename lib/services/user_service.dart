@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:reserve_it_app/models/user.dart';
 
 /*
-* Service xfor the entity User.
+* Service for the entity User.
 * */
 class UserService {
   //user collection reference

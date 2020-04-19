@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:reserve_it_app/services/auth.dart';
+import 'package:reserve_it_app/screens/locals.dart';
+import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:reserve_it_app/services/local_service.dart';
 import 'package:reserve_it_app/utils/custom_widgets.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -16,6 +18,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final CustomWidgets _utils = new CustomWidgets();
 
   List<String> preferences = [];
+  List<dynamic> _foundLocals;
 
   DateTime _date;
   TimeOfDay _time;
@@ -96,12 +99,13 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Text('Find your table for \n     any occasion',
+                        Text('Reserve your table for \n        any occasion',
                             style: TextStyle(fontSize: 30.0)),
                         _utils.getHeightSizedBox(50.0),
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
-                            Icon(Icons.calendar_today, size: 35.0),
+                            Icon(Icons.calendar_today,
+                                size: 30.0, color: Colors.deepPurple),
                             _utils.getWitdthSizedBox(5.0),
                             Text("Date", style: TextStyle(fontSize: 20.0)),
                             _utils.getWitdthSizedBox(12.0),
@@ -142,7 +146,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           Row(children: <Widget>[
                             Icon(
                               Icons.access_time,
-                              size: 35.0,
+                              color: Colors.deepPurple,
+                              size: 30.0,
                             ),
                             _utils.getWitdthSizedBox(5.0),
                             Text("Time", style: TextStyle(fontSize: 20.0)),
@@ -180,7 +185,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           Row(children: <Widget>[
                             Icon(
                               Icons.people_outline,
-                              size: 35.0,
+                              size: 30.0,
+                              color: Colors.deepPurple,
                             ),
                             _utils.getWitdthSizedBox(5.0),
                             Text("Number people",
@@ -204,7 +210,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           Row(children: <Widget>[
                             Icon(
                               Icons.scatter_plot,
-                              size: 35.0,
+                              size: 30.0,
+                              color: Colors.deepPurple,
                             ),
                             _utils.getWitdthSizedBox(5.0),
                             Text("What do you prefer?",
@@ -215,39 +222,38 @@ class _DashboardPageState extends State<DashboardPage> {
                         Wrap(children: <Widget>[
                           Row(children: <Widget>[
                             Container(
-                                width: 270,
+                                width: 290,
                                 child: TextFormField(
                                     controller: prefereceController,
                                     style: TextStyle(color: Colors.grey),
                                     decoration: new InputDecoration(
                                         hintText: !_isCheckedPreference
                                             ? 'Eg. Pizza, Beer, Desserts...'
-                                            : ''))),
-                            _utils.getWitdthSizedBox(5.0),
-                            IconButton(
-                              icon: Icon(Icons.check),
-                              onPressed: () {
-                                if (prefereceController.text
-                                        .toString()
-                                        .isNotEmpty &&
-                                    prefereceController.text !=
-                                        'Eg. Pizza, Beer, Desserts...') {
-                                  setState(() {
-                                    preferences.add(
-                                        prefereceController.text.toString());
-                                  });
-                                  _isCheckedPreference = false;
-                                  prefereceController.text = '';
-                                }
-                              },
-                            ),
+                                            : ''),
+                                    onFieldSubmitted: (value) {
+                                      if (prefereceController.text
+                                              .toString()
+                                              .isNotEmpty &&
+                                          prefereceController.text !=
+                                              'Eg. Pizza, Beer, Desserts...') {
+                                        setState(() {
+                                          preferences.add(prefereceController
+                                              .text
+                                              .toString());
+                                        });
+                                        _isCheckedPreference = false;
+                                        prefereceController.text = '';
+                                      }
+                                    })),
+                            _utils.getWitdthSizedBox(5.0)
                           ])
                         ]),
                         _utils.getHeightSizedBox(10.0),
                         generateDynamicPreferences(),
                         _utils.getHeightSizedBox(35.0),
                         new OutlineButton(
-                            splashColor: Colors.grey,
+                            splashColor: Colors.deepPurple,
+                            color: Colors.deepPurple,
                             onPressed: () {
                               setState(() {
                                 _date == null
@@ -262,7 +268,31 @@ class _DashboardPageState extends State<DashboardPage> {
                                     : _validateNb = true;
                               });
                               if (validateInput()) {
-                                //TODO search for locals
+                                setState(() {
+                                  if (preferences.isEmpty) {
+                                    LocalService().getLocals().then((value) {
+                                      _foundLocals = value;
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LocalsScreen(
+                                                      foundLocals:
+                                                          _foundLocals)));
+                                    });
+                                  } else {
+                                    LocalService()
+                                        .getFilteredLocals(preferences)
+                                        .then((value) {
+                                      _foundLocals = value;
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LocalsScreen(
+                                                      foundLocals:
+                                                          _foundLocals)));
+                                    });
+                                  }
+                                });
                               }
                             },
                             shape: RoundedRectangleBorder(
@@ -338,7 +368,7 @@ class _DashboardPageState extends State<DashboardPage> {
   * */
   bool validateInput() {
     final form = formKey.currentState;
-    if (form.validate()) {
+    if (!_validateDate && !_validateNb && !_validateTime) {
       form.save();
       return true;
     }

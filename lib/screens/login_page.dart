@@ -1,12 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/user.dart';
-import 'package:reserve_it_app/services/auth.dart';
+import 'package:reserve_it_app/models/current_location.dart';
+import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/user_service.dart';
 import 'package:reserve_it_app/utils/custom_widgets.dart';
-import 'package:reserve_it_app/utils/loading.dart';
+import 'package:reserve_it_app/screens/loading.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -35,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    var userLocation = Provider.of<CurrentUserLocation>(context);
     return _loading
         ? Loading()
         : Scaffold(
@@ -369,10 +372,9 @@ class _LoginPageState extends State<LoginPage> {
   * */
   Widget getFlatButton(String text) {
     return new FlatButton(
-      child: new Text("OK"),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
+        child: new Text("OK"),
+        onPressed: () {
+          Navigator.of(context).pop();
+        });
   }
 }
