@@ -17,7 +17,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final numberController = new TextEditingController();
   final CustomWidgets _utils = new CustomWidgets();
 
-  List<String> preferences = [];
+  List<String> _preferences = [];
   List<dynamic> _foundLocals;
 
   DateTime _date;
@@ -237,7 +237,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           prefereceController.text !=
                                               'Eg. Pizza, Beer, Desserts...') {
                                         setState(() {
-                                          preferences.add(prefereceController
+                                          _preferences.add(prefereceController
                                               .text
                                               .toString());
                                         });
@@ -269,7 +269,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               });
                               if (validateInput()) {
                                 setState(() {
-                                  if (preferences.isEmpty) {
+                                  if (_preferences.isEmpty) {
                                     LocalService().getLocals().then((value) {
                                       _foundLocals = value;
                                       Navigator.of(context).push(
@@ -281,7 +281,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     });
                                   } else {
                                     LocalService()
-                                        .getFilteredLocals(preferences)
+                                        .getFilteredLocals(_preferences)
                                         .then((value) {
                                       _foundLocals = value;
                                       Navigator.of(context).push(
@@ -342,16 +342,16 @@ class _DashboardPageState extends State<DashboardPage> {
   Wrap generateDynamicPreferences() {
     return Wrap(
       spacing: 5.0,
-      children: List<Widget>.generate(preferences.length, (int index) {
+      children: List<Widget>.generate(_preferences.length, (int index) {
         return Chip(
           label:
-              Text(preferences[index], style: TextStyle(color: Colors.white)),
+              Text(_preferences[index], style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.deepPurple,
           padding: EdgeInsets.all(3.0),
           deleteIcon: Icon(Icons.clear, color: Colors.white, size: 15.0),
           onDeleted: (() {
             setState(() {
-              preferences.removeAt(index);
+              _preferences.removeAt(index);
             });
           }),
         );

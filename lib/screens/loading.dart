@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:reserve_it_app/utils/custom_widgets.dart';
 
+/*
+* Loading screen for actions that
+* take a while.
+* */
 class Loading extends StatelessWidget {
+  CustomWidgets _customWidgets = CustomWidgets();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,12 +30,12 @@ class Loading extends StatelessWidget {
           child: Center(
             child: new Column(
               children: [
-                SizedBox(height: 250),
+                _customWidgets.getHeightSizedBox(250),
                 SpinKitFadingCircle(
                   color: Colors.deepPurple,
                   size: 100.0,
                 ),
-                SizedBox(height: 20),
+                _customWidgets.getHeightSizedBox(20.0),
                 Text('  Loading...',
                     style: TextStyle(fontSize: 30.0, color: Colors.grey))
               ],

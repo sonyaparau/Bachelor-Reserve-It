@@ -6,7 +6,7 @@ import 'package:reserve_it_app/screens/local_details.dart';
 
 /*
 * Class with useful methods for creating
-* costom Flutter Widgets for the screens
+* custom Flutter Widgets for the screens
 * of the application.
 * */
 class CustomWidgets {
@@ -50,6 +50,12 @@ class CustomWidgets {
     );
   }
 
+  /*
+   * Returns a card with a restaurant containing
+   * its name, the picture, type and the distance
+   * between the user's current location and the
+   * restaurant.
+   * */
   Widget buildLocalCard(
       BuildContext context, Local local, bool locationEnabled) {
     return SingleChildScrollView(
@@ -109,6 +115,13 @@ class CustomWidgets {
     ));
   }
 
+  /*
+  * Returns a list of widgets containing the icon with
+  * the enable/ disabled location and the distance between
+  * the user's location and a restaurant. If the current
+  * location of the user is not allowed, then an 'Unknown'
+  * distance will be displayed.
+  * */
   List<Widget> getWidgetsForLocation(bool locationEnabled) {
     if (locationEnabled) {
       return [
@@ -127,6 +140,11 @@ class CustomWidgets {
     }
   }
 
+  /*
+  * Returns a rating bar that cannot
+  * be changed with a number of filled
+  * stars given as parameter.
+  * */
   Widget getRatingBar(double rating) {
     return RatingBar.readOnly(
       initialRating: rating,

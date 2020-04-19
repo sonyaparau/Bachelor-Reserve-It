@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   // Phone mobile number must start with +4 and
   // continue with 07 followed by 8 digits as it
   //is a Romanian number
-  RegExp phone_validator = new RegExp(
+  RegExp _phoneValidator = new RegExp(
     r"\+407[0-9]{8}",
     caseSensitive: false,
     multiLine: false,
@@ -37,7 +37,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var userLocation = Provider.of<CurrentUserLocation>(context);
+    //TODO check current location implementation
+//   Provider.of<CurrentUserLocation>(context);
     return _loading
         ? Loading()
         : Scaffold(
@@ -257,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
                 labelText: 'Phone number', labelStyle: TextStyle(fontSize: 18)),
             validator: (value) {
               if (value.isEmpty) return 'Phone number is required!';
-              if (!phone_validator.hasMatch(value.trim()))
+              if (!_phoneValidator.hasMatch(value.trim()))
                 return 'Phone number format is invalid!';
               return null;
             },

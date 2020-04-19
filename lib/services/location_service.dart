@@ -3,6 +3,12 @@ import 'dart:async';
 import 'package:location/location.dart';
 import 'package:reserve_it_app/models/current_location.dart';
 
+/*
+* Service for managing the current location
+* of the logged user. Current location is enabled,
+* only if the user allows it and has it's location
+* on his mobile opened.
+* */
 class LocationService {
   Location _location = Location();
   CurrentUserLocation _currentLocation;
