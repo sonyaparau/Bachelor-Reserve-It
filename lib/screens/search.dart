@@ -63,14 +63,15 @@ class LocalSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // show result based on selection
-    if(tappedIndex != -1)
-    return customWidgets.buildLocalCard(
-        context, _foundLocals[tappedIndex], _locationEnabled);
-    else
+    if (tappedIndex != -1) {
+      return customWidgets.buildLocalCard(
+          context, _foundLocals[tappedIndex], _locationEnabled);
+    } else {
       return new Center(
           child: new Container(
               child: Text('No table has been found ☹️',
                   style: TextStyle(fontSize: 20.0))));
+    }
   }
 
   @override
