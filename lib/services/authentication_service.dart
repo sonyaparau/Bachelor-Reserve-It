@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reserve_it_app/models/user.dart';
-import 'package:reserve_it_app/screens/login_page.dart';
+import 'package:reserve_it_app/screens/login.dart';
 import 'package:reserve_it_app/screens/dashboard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';

@@ -1,6 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:rating_bar/rating_bar.dart';
+import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
 
@@ -10,6 +13,8 @@ import 'package:reserve_it_app/screens/local_details.dart';
 * of the application.
 * */
 class CustomWidgets {
+
+  double _km = -1;
   /*
   * Returns a sized box for the height
   * between two objects.
@@ -39,7 +44,7 @@ class CustomWidgets {
             children: <Widget>[
               Image.asset('assets/app_logo.png',
                   fit: BoxFit.contain, height: 32),
-             getWitdthSizedBox(2.0),
+              getWitdthSizedBox(2.0),
               new Text(title)
             ],
           ),
@@ -58,6 +63,16 @@ class CustomWidgets {
    * */
   Widget buildLocalCard(
       BuildContext context, Local local, bool locationEnabled) {
+    final Distance distance = new Distance();
+    if (locationEnabled) {
+      //TODO check current location implementation
+      var currentLocation = Provider.of<CurrentUserLocation>(context);
+      _km = distance.as(
+          LengthUnit.Meter,
+          new LatLng(local.geoPoint.latitude, local.geoPoint.longitude),
+          new LatLng(currentLocation.latitude, currentLocation.longitude));
+    }
+
     return SingleChildScrollView(
         child: Container(
       child: Card(
@@ -91,8 +106,8 @@ class CustomWidgets {
                 Padding(
                   padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
                   child: Row(children: [
-                    getWidgetsForLocation(locationEnabled)[0],
-                    getWidgetsForLocation(locationEnabled)[1],
+                    getWidgetsForLocation(locationEnabled, _km)[0],
+                    getWidgetsForLocation(locationEnabled, _km)[1],
                     Spacer(),
                     RaisedButton(
                       color: Colors.deepPurple,
@@ -122,16 +137,17 @@ class CustomWidgets {
   * location of the user is not allowed, then an 'Unknown'
   * distance will be displayed.
   * */
-  List<Widget> getWidgetsForLocation(bool locationEnabled) {
+  List<Widget> getWidgetsForLocation(bool locationEnabled, double distance) {
     if (locationEnabled) {
+      distance /= 1000;
       return [
-        Icon(Icons.location_on, size: 18, color: Colors.red),
+        Icon(Icons.location_on, size: 20, color: Colors.red),
         //TODO calculate distance
-        Text('1,5 km', style: TextStyle(color: Colors.grey, fontSize: 15))
+        Text( distance.toStringAsFixed(1) + ' km', style: TextStyle(color: Colors.grey, fontSize: 15))
       ];
     } else {
       return [
-        Icon(Icons.location_off, size: 18, color: Colors.red),
+        Icon(Icons.location_off, size: 20, color: Colors.red),
         Text(
           'unknown',
           style: TextStyle(color: Colors.grey, fontSize: 15),

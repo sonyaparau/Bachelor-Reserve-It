@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     //TODO check current location implementation
-//   Provider.of<CurrentUserLocation>(context);
+   Provider.of<CurrentUserLocation>(context);
     return _loading
         ? Loading()
         : Scaffold(

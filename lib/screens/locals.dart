@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/current_location.dart';
+import 'package:reserve_it_app/screens/map.dart';
 import 'package:reserve_it_app/screens/search.dart';
 import 'package:reserve_it_app/utils/custom_widgets.dart';
 
@@ -27,7 +28,7 @@ class _LocalsScreenState extends State<LocalsScreen> {
   @override
   Widget build(BuildContext context) {
     //TODO change implementation here
-//    _userLocation = Provider.of<CurrentUserLocation>(context);
+    _userLocation = Provider.of<CurrentUserLocation>(context);
     if (_userLocation != null) {
       _locationEnabled = true;
     }
@@ -45,6 +46,12 @@ class _LocalsScreenState extends State<LocalsScreen> {
                       context: context,
                       delegate: LocalSearch(
                           _locationEnabled, searchLocals, foundLocals));
+                }),
+            IconButton(
+                icon: Icon(Icons.map),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => Map(locals: foundLocals)));
                 })
           ],
         ),

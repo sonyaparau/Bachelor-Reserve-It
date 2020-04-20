@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:reserve_it_app/models/address.dart';
 
 /*
@@ -20,6 +21,7 @@ class Local {
   String type;
   String website;
   double rating;
+  GeoPoint geoPoint;
 
   Local.fromJson(Map<String, dynamic> data) {
       address = Address.fromJson(data['address']);
@@ -36,5 +38,6 @@ class Local {
       type = data['type'];
       website = data['website'];
       rating = data['rating'];
+      geoPoint = data['geographical_point'];
   }
 }

@@ -24,8 +24,12 @@ dependencies:
   flutter_webview_plugin:
   flutter_spinkit: "^4.1.2"
   rating_bar:
+  google_maps_flutter: ^0.5.25+3
+#  for web
+  google_maps:
   location:
   provider:
+  latlong:
 
 
 dev_dependencies:
@@ -45,6 +49,7 @@ flutter:
     - assets/reserve_logo.png
     - assets/anonymous.png
     - assets/app_logo.png
+    - assets/user_location.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
