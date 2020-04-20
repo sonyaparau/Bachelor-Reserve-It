@@ -47,7 +47,6 @@ class _MapState extends State<Map> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO check implementation here
     var userLocation = Provider.of<CurrentUserLocation>(context);
     bool activatedLocation = false;
     if (userLocation != null) {
@@ -222,13 +221,15 @@ class _MapState extends State<Map> {
   }
 
   Widget detailsContainer(Local restaurant, bool activatedLocation) {
-    //TODO check implementation
     var userLocation = Provider.of<CurrentUserLocation>(context);
     ll.Distance distance = ll.Distance();
-    _km = distance.as(
-        ll.LengthUnit.Meter,
-        new ll.LatLng(restaurant.geoPoint.latitude, restaurant.geoPoint.longitude),
-        new ll.LatLng(userLocation.latitude, userLocation.longitude));
+    if(userLocation != null) {
+      _km = distance.as(
+          ll.LengthUnit.Meter,
+          new ll.LatLng(
+              restaurant.geoPoint.latitude, restaurant.geoPoint.longitude),
+          new ll.LatLng(userLocation.latitude, userLocation.longitude));
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[

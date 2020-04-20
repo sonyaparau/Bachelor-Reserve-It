@@ -24,13 +24,12 @@ dependencies:
   flutter_webview_plugin:
   flutter_spinkit: "^4.1.2"
   rating_bar:
-  google_maps_flutter: ^0.5.25+3
-#  for web
+  google_maps_flutter: ^0.5.21+15
+  #  for web
   google_maps:
-  location:
+  location: ^2.3.5
   provider:
   latlong:
-
 
 dev_dependencies:
   flutter_test:

@@ -27,7 +27,6 @@ class _LocalsScreenState extends State<LocalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO change implementation here
     _userLocation = Provider.of<CurrentUserLocation>(context);
     if (_userLocation != null) {
       _locationEnabled = true;

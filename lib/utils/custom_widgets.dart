@@ -65,7 +65,6 @@ class CustomWidgets {
       BuildContext context, Local local, bool locationEnabled) {
     final Distance distance = new Distance();
     if (locationEnabled) {
-      //TODO check current location implementation
       var currentLocation = Provider.of<CurrentUserLocation>(context);
       _km = distance.as(
           LengthUnit.Meter,
@@ -142,7 +141,6 @@ class CustomWidgets {
       distance /= 1000;
       return [
         Icon(Icons.location_on, size: 20, color: Colors.red),
-        //TODO calculate distance
         Text( distance.toStringAsFixed(1) + ' km', style: TextStyle(color: Colors.grey, fontSize: 15))
       ];
     } else {

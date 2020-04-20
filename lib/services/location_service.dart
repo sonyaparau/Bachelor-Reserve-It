@@ -10,16 +10,18 @@ import 'package:reserve_it_app/models/current_location.dart';
 * on his mobile opened.
 * */
 class LocationService {
-  Location _location = Location();
+  Location location = Location();
   CurrentUserLocation _currentLocation;
 
   StreamController<CurrentUserLocation> _locationController =
       StreamController<CurrentUserLocation>.broadcast();
 
+  Stream<CurrentUserLocation> get locationStream => _locationController.stream;
+
   LocationService() {
-    _location.requestPermission().then((granted) {
+    location.requestPermission().then((granted) {
       if (granted != null) {
-        _location.onLocationChanged.listen((LocationData locationData) {
+        location.onLocationChanged().listen((locationData) {
           if (locationData != null) {
             _locationController.add(CurrentUserLocation(
                 latitude: locationData.latitude,
@@ -30,11 +32,9 @@ class LocationService {
     });
   }
 
-  Stream<CurrentUserLocation> get locationStream => _locationController.stream;
-
   Future<CurrentUserLocation> getLocation() async {
     try {
-      var userLocation = await _location.getLocation();
+      var userLocation = await location.getLocation();
       _currentLocation = CurrentUserLocation(
           latitude: userLocation.latitude, longitude: userLocation.longitude);
     } catch (exception) {
