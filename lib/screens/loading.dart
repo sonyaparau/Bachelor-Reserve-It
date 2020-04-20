@@ -30,7 +30,7 @@ class Loading extends StatelessWidget {
           child: Center(
             child: new Column(
               children: [
-                _customWidgets.getHeightSizedBox(250),
+                _customWidgets.getHeightSizedBox(250.0),
                 SpinKitFadingCircle(
                   color: Colors.deepPurple,
                   size: 100.0,

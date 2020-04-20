@@ -10,7 +10,7 @@ class LocalSearch extends SearchDelegate<String> {
   List<Local> _foundLocals = [];
 
   //index of the tapped local in the search scree
-  int tappedIndex = 0;
+  int tappedIndex = -1;
 
   //user's location is enabled or not
   bool _locationEnabled;
@@ -28,10 +28,13 @@ class LocalSearch extends SearchDelegate<String> {
   ThemeData appBarTheme(BuildContext context) {
     ThemeData theme = Theme.of(context);
     return theme.copyWith(
-      primaryColor: Colors.deepPurple,
-      primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.white),
-      textSelectionColor: Colors.white,
-    );
+        backgroundColor: Colors.white,
+        primaryColor: Colors.deepPurple,
+        inputDecorationTheme:
+            InputDecorationTheme(hintStyle: TextStyle(color: Colors.white)),
+        textTheme: theme.textTheme.copyWith(
+            headline6:
+                TextStyle(fontWeight: FontWeight.normal, color: Colors.white)));
   }
 
   @override
@@ -60,8 +63,14 @@ class LocalSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // show result based on selection
+    if(tappedIndex != -1)
     return customWidgets.buildLocalCard(
         context, _foundLocals[tappedIndex], _locationEnabled);
+    else
+      return new Center(
+          child: new Container(
+              child: Text('No table has been found ☹️',
+                  style: TextStyle(fontSize: 20.0))));
   }
 
   @override
@@ -90,4 +99,7 @@ class LocalSearch extends SearchDelegate<String> {
             ),
         itemCount: options.length);
   }
+
+  @override
+  String get searchFieldLabel => 'Search';
 }
