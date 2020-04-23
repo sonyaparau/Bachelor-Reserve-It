@@ -58,7 +58,7 @@ class _LocalsScreenState extends State<LocalsScreen> {
         body: foundLocals.length > 0
             ? new Center(
                 child: new Container(
-                    width: 420,
+                    width: 800,
                     child: new Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,

@@ -30,6 +30,8 @@ dependencies:
   location: ^2.3.5
   provider:
   latlong:
+  carousel_pro:
+  url_launcher:
 
 dev_dependencies:
   flutter_test:

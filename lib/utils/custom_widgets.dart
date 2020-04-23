@@ -94,7 +94,7 @@ class CustomWidgets {
                 Padding(
                   padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
                   child: Row(children: [
-                    getRatingBar(local.rating),
+                    getRatingBar(local.rating, 16.0),
                     Text(' • ' + local.type,
                         style: TextStyle(
                             fontStyle: FontStyle.italic,
@@ -123,7 +123,7 @@ class CustomWidgets {
             ),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => LocalDetails(selectedLocal: local)));
+                  builder: (context) => LocalDetails(selectedLocal: local, distance: _km)));
             }),
       ),
     ));
@@ -159,7 +159,7 @@ class CustomWidgets {
   * be changed with a number of filled
   * stars given as parameter.
   * */
-  Widget getRatingBar(double rating) {
+  Widget getRatingBar(double rating, double size) {
     return RatingBar.readOnly(
       initialRating: rating,
       isHalfAllowed: true,
@@ -169,7 +169,7 @@ class CustomWidgets {
       emptyColor: Colors.amber,
       filledColor: Colors.amber,
       halfFilledColor: Colors.amber,
-      size: 16,
+      size: size,
     );
   }
 }

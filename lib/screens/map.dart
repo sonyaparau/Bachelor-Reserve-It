@@ -186,7 +186,7 @@ class _MapState extends State<Map> {
       },
       onDoubleTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => LocalDetails(selectedLocal: restaurant)));
+            builder: (context) => LocalDetails(selectedLocal: restaurant, distance: _km)));
       },
       child: new FittedBox(
         child: Material(
@@ -246,7 +246,7 @@ class _MapState extends State<Map> {
             child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Container(child: _customWidgets.getRatingBar(restaurant.rating)),
+            Container(child: _customWidgets.getRatingBar(restaurant.rating, 25.0)),
             Container(
                 child: Text(
               ' (' + restaurant.rating.toString() + ')',
