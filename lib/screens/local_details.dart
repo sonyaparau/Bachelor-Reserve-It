@@ -200,10 +200,14 @@ class _LocalDetailsState extends State<LocalDetails> {
             buildRowPhone(),
             _customWidgets.getHeightSizedBox(5.0),
             buildRowPayments(),
-            _customWidgets.getHeightSizedBox(5.0),
-            buildRowEmail(),
-            _customWidgets.getHeightSizedBox(5.0),
-            buildRowWebsite(),
+            !_local.email.startsWith('-')
+                ? _customWidgets.getHeightSizedBox(5.0)
+                : Offstage(),
+            !_local.email.startsWith('-') ? buildRowEmail() : Offstage(),
+            !_local.website.startsWith('-')
+                ? _customWidgets.getHeightSizedBox(5.0)
+                : Offstage(),
+            !_local.website.startsWith('-') ? buildRowWebsite() : Offstage(),
             _customWidgets.getHeightSizedBox(5.0),
             buildRowPets(),
             _customWidgets.getHeightSizedBox(5.0),
@@ -361,7 +365,7 @@ class _LocalDetailsState extends State<LocalDetails> {
   Row buildRowPayments() {
     String paymentText = '';
     for (String paymentMethod in _local.paymentMethods) {
-      paymentText = paymentText + paymentMethod + ',';
+      paymentText = paymentText + paymentMethod + ', ';
     }
     return Row(
       children: [
@@ -378,7 +382,7 @@ class _LocalDetailsState extends State<LocalDetails> {
         ),
         _customWidgets.getWitdthSizedBox(5.0),
         Text(
-          paymentText.substring(0, paymentText.length - 1),
+          paymentText.substring(0, paymentText.length - 2),
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 16.0, color: Colors.black87),
         ),
