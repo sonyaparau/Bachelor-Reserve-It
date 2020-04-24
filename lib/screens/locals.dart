@@ -5,7 +5,7 @@ import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/screens/map.dart';
 import 'package:reserve_it_app/screens/search.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
 class LocalsScreen extends StatefulWidget {
   List<Local> foundLocals;

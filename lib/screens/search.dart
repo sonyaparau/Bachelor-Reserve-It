@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/models/local.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
 class LocalSearch extends SearchDelegate<String> {
   //list with all the names of the found locals

@@ -4,7 +4,7 @@ import 'package:reserve_it_app/screens/locals.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/local_service.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
 class DashboardPage extends StatefulWidget {
   @override

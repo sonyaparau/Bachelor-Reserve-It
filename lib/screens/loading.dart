@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
 /*
 * Loading screen for actions that

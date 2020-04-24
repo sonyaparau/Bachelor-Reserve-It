@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
 class Map extends StatefulWidget {
   List<Local> locals;

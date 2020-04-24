@@ -7,7 +7,7 @@ import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/user_service.dart';
-import 'package:reserve_it_app/utils/custom_widgets.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:reserve_it_app/screens/loading.dart';
 
 class LoginPage extends StatefulWidget {
