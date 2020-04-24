@@ -92,7 +92,7 @@ class LocalDetailsHelper {
         _customWidgets.getWitdthSizedBox(5.0),
         GestureDetector(
           onTap: () {
-            if (!kIsWeb) launchPhoneNumber(phoneNumber);
+            if (!kIsWeb) _launchPhoneNumber(phoneNumber);
           },
           child: buildTextDetails(
             phoneNumber.substring(2, phoneNumber.length),
@@ -117,7 +117,7 @@ class LocalDetailsHelper {
         _customWidgets.getWitdthSizedBox(5.0),
         GestureDetector(
           onTap: () {
-            launchUrl(website);
+            _launchUrl(website);
           },
           child: buildTextDetails(website, FontWeight.normal, Colors.blue),
         ),
@@ -251,7 +251,7 @@ class LocalDetailsHelper {
   * this number or send a message to it when
   * the number is pressed.
   * */
-  launchPhoneNumber(String phoneNumber) async {
+  _launchPhoneNumber(String phoneNumber) async {
     var url = 'tel:$phoneNumber';
     if (await canLaunch(url)) {
       await launch(url);
@@ -263,7 +263,7 @@ class LocalDetailsHelper {
   /*
   * Launches the website of the restaurant.
   * */
-  launchUrl(String website) async {
+  _launchUrl(String website) async {
     var url = 'https://' + website.substring(3, website.length);
     if (await canLaunch(url)) {
       await launch(url);

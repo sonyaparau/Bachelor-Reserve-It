@@ -358,7 +358,7 @@ class _LocalDetailsState extends State<LocalDetails> {
   * Sets the center of the map in the
   * selected restaurant's location.
   * */
-  void buildMapCenter() {
+  buildMapCenter() {
     _center = LatLng(_local.geoPoint.latitude, _local.geoPoint.longitude);
   }
 
