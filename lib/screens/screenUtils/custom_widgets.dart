@@ -9,8 +9,8 @@ import 'package:reserve_it_app/screens/local_details.dart';
 
 /*
 * Class with useful methods for creating
-* custom Flutter Widgets for the screens
-* of the application.
+* custom Flutter Widgets used in multiple
+* screens of the application.
 * */
 class CustomWidgets {
 
