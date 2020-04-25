@@ -6,6 +6,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/local_service.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
+/*
+* Dashboard Screen where the user can see his
+* profile picture, his notifications or can log out
+* from the application. He can also search for
+* a specific restaurant or add his preferences to
+* find some restaurants based on his preferences.
+* */
 class DashboardPage extends StatefulWidget {
   @override
   _DashboardPageState createState() => _DashboardPageState();
@@ -14,310 +21,279 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final formKey = new GlobalKey<FormState>();
   final prefereceController = new TextEditingController();
-  final numberController = new TextEditingController();
   final CustomWidgets _utils = new CustomWidgets();
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
 
-  DateTime _date;
-  TimeOfDay _time;
   bool _isCheckedPreference = false;
-  bool _validateDate = false;
-  bool _validateTime = false;
-  bool _validateNb = false;
 
-  /*
-  * Number of people validator: it must be a
-  * positive, natural number, greater thna 0.
-  * */
-  RegExp _nbPeopleValidator = new RegExp(
-    r"[1-9][0-9]*",
-    caseSensitive: false,
-    multiLine: false,
-  );
+  //pre-filled location from the dropdown
+  String _selectedLocation = 'Cluj-Napoca';
+
+  //all available locations for the dropdown
+  List<String> _locations = ['Cluj-Napoca', 'Sibiu', 'Oradea'];
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
     prefereceController.dispose();
-    numberController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            Image.asset(
-              'assets/app_logo.png',
-              fit: BoxFit.contain,
-              height: 32,
-              color: Colors.blueGrey,
-            ),
-            Container(
-                padding: const EdgeInsets.all(8.0), child: Text('ReserveIt'))
-          ],
-        ),
-        backgroundColor: Colors.deepPurple,
-        actions: <Widget>[
-          IconButton(
-            icon: AuthService.urlProfilePhoto != null
-                ? new CircleAvatar(
-                    backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
-                    radius: 15.0,
-                    backgroundColor: Colors.white,
-                  )
-                : Icon(Icons.account_circle),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () {
-              logoutDialog();
-            },
-          )
-        ],
-      ),
+      appBar: buildAppBar(),
       backgroundColor: Colors.white,
       resizeToAvoidBottomPadding: true,
       body: new Center(
         child: new Container(
-            width: !kIsWeb ? 350 : 370,
-            padding: new EdgeInsets.all(6.0),
-            child: SingleChildScrollView(
-                child: new Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('Reserve your table for \n        any occasion',
-                            style: TextStyle(fontSize: 30.0)),
-                        _utils.getHeightSizedBox(50.0),
-                        Wrap(children: <Widget>[
-                          Row(children: <Widget>[
-                            Icon(Icons.calendar_today,
-                                size: 30.0, color: Colors.deepPurple),
-                            _utils.getWitdthSizedBox(5.0),
-                            Text("Date", style: TextStyle(fontSize: 20.0)),
-                            _utils.getWitdthSizedBox(12.0),
-                            Container(
-                                width: 200,
-                                child: TextField(
-                                  readOnly: true,
-                                  decoration: new InputDecoration(
-                                      hintText: _date == null
-                                          ? 'No date chosen'
-                                          : _date.toLocal().day.toString() +
-                                              "." +
-                                              _date.toLocal().month.toString() +
-                                              "." +
-                                              _date.toLocal().year.toString(),
-                                      errorText: _validateDate
-                                          ? 'Date is required!'
-                                          : null),
-                                  onTap: () {
-                                    showDatePicker(
-                                            context: context,
-                                            initialDate: _date == null
-                                                ? DateTime.now()
-                                                : _date,
-                                            firstDate: DateTime.now(),
-                                            lastDate: DateTime(2025))
-                                        .then((value) {
-                                      setState(() {
-                                        _date = value;
-                                      });
-                                    });
-                                  },
-                                ))
-                          ])
-                        ]),
-                        _utils.getHeightSizedBox(10.0),
-                        Wrap(children: <Widget>[
-                          Row(children: <Widget>[
-                            Icon(
-                              Icons.access_time,
-                              color: Colors.deepPurple,
-                              size: 30.0,
-                            ),
-                            _utils.getWitdthSizedBox(5.0),
-                            Text("Time", style: TextStyle(fontSize: 20.0)),
-                            _utils.getWitdthSizedBox(10.0),
-                            Container(
-                                width: 200,
-                                child: TextField(
-                                  readOnly: true,
-                                  decoration: new InputDecoration(
-                                      hintText: _time == null
-                                          ? 'No hour chosen'
-                                          : _time.hour.toString() +
-                                              ':' +
-                                              _time.minute.toString(),
-                                      errorText: _validateTime
-                                          ? 'Time is required!'
-                                          : null),
-                                  onTap: () {
-                                    showTimePicker(
-                                      context: context,
-                                      initialTime: _time == null
-                                          ? TimeOfDay.now()
-                                          : _time,
-                                    ).then((value) {
-                                      setState(() {
-                                        _time = value;
-                                      });
-                                    });
-                                  },
-                                ))
-                          ])
-                        ]),
-                        _utils.getHeightSizedBox(10.0),
-                        Wrap(children: <Widget>[
-                          Row(children: <Widget>[
-                            Icon(
-                              Icons.people_outline,
-                              size: 30.0,
-                              color: Colors.deepPurple,
-                            ),
-                            _utils.getWitdthSizedBox(5.0),
-                            Text("Number people",
-                                style: TextStyle(fontSize: 20.0)),
-                            _utils.getWitdthSizedBox(12.0),
-                            Container(
-                                width: 105,
-                                child: TextField(
-                                    controller: numberController,
-                                    readOnly: false,
-                                    keyboardType: TextInputType.number,
-                                    decoration: new InputDecoration(
-                                        errorText: _validateNb
-                                            ? 'Number is required!'
-                                            : null),
-                                    style: TextStyle(color: Colors.grey)))
-                          ])
-                        ]),
-                        _utils.getHeightSizedBox(12.0),
-                        Wrap(children: <Widget>[
-                          Row(children: <Widget>[
-                            Icon(
-                              Icons.scatter_plot,
-                              size: 30.0,
-                              color: Colors.deepPurple,
-                            ),
-                            _utils.getWitdthSizedBox(5.0),
-                            Text("What do you prefer?",
-                                style: TextStyle(fontSize: 20.0))
-                          ])
-                        ]),
-                        _utils.getHeightSizedBox(10.0),
-                        Wrap(children: <Widget>[
-                          Row(children: <Widget>[
-                            Container(
-                                width: 290,
-                                child: TextFormField(
-                                    controller: prefereceController,
-                                    style: TextStyle(color: Colors.grey),
-                                    decoration: new InputDecoration(
-                                        hintText: !_isCheckedPreference
-                                            ? 'Eg. Pizza, Beer, Desserts...'
-                                            : ''),
-                                    onFieldSubmitted: (value) {
-                                      if (prefereceController.text
-                                              .toString()
-                                              .isNotEmpty &&
-                                          prefereceController.text !=
-                                              'Eg. Pizza, Beer, Desserts...') {
-                                        setState(() {
-                                          _preferences.add(prefereceController
-                                              .text
-                                              .toString());
-                                        });
-                                        _isCheckedPreference = false;
-                                        prefereceController.text = '';
-                                      }
-                                    })),
-                            _utils.getWitdthSizedBox(5.0)
-                          ])
-                        ]),
-                        _utils.getHeightSizedBox(10.0),
-                        generateDynamicPreferences(),
-                        _utils.getHeightSizedBox(35.0),
-                        new OutlineButton(
-                            splashColor: Colors.deepPurple,
-                            color: Colors.deepPurple,
-                            onPressed: () {
-                              setState(() {
-                                _date == null
-                                    ? _validateDate = true
-                                    : _validateDate = false;
-                                _time == null
-                                    ? _validateTime = true
-                                    : _validateTime = false;
-                                _nbPeopleValidator.hasMatch(
-                                        numberController.value.text.toString())
-                                    ? _validateNb = false
-                                    : _validateNb = true;
-                              });
-                              if (validateInput()) {
-                                setState(() {
-                                  if (_preferences.isEmpty) {
-                                    LocalService().getLocals().then((value) {
-                                      _foundLocals = value;
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LocalsScreen(
-                                                      foundLocals:
-                                                          _foundLocals)));
-                                    });
-                                  } else {
-                                    LocalService()
-                                        .getFilteredLocals(_preferences)
-                                        .then((value) {
-                                      _foundLocals = value;
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LocalsScreen(
-                                                      foundLocals:
-                                                          _foundLocals)));
-                                    });
-                                  }
-                                });
-                              }
-                            },
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40)),
-                            highlightElevation: 0,
-                            borderSide: BorderSide(color: Colors.grey),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text(
-                                      'Let\'s go',
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.grey),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ))
-                      ],
-                    )))),
+          width: !kIsWeb ? 350 : 370,
+          padding: new EdgeInsets.all(25.0),
+          child: SingleChildScrollView(
+            child: buildFormSearch(context),
+          ),
+        ),
       ),
+    );
+  }
+
+  /*
+  * @return Appbar of the dashboard containing
+  * the logo, the name of the application, an
+  * icon button for the profile, an icon button
+  * for notifications and one for the logout.
+  * */
+  AppBar buildAppBar() {
+    return AppBar(
+      title: Row(
+        children: <Widget>[
+          Image.asset(
+            'assets/app_logo.png',
+            fit: BoxFit.contain,
+            height: 32,
+            color: Colors.blueGrey,
+          ),
+          Container(
+              padding: const EdgeInsets.all(8.0), child: Text('ReserveIt'))
+        ],
+      ),
+      backgroundColor: Colors.deepPurple,
+      actions: <Widget>[
+        buildIconButtonProfile(),
+        buildIconButtonNotification(),
+        buildIconButtonLogout()
+      ],
+    );
+  }
+
+  /*
+  * @return the form for searching a restaurant
+  * */
+  Form buildFormSearch(BuildContext context) {
+    return new Form(
+      key: formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('Reserve your table',
+              style: TextStyle(fontSize: 30.0)),
+          _utils.getHeightSizedBox(50.0),
+          _utils.getWitdthSizedBox(5.0),
+          buildRowLocation(),
+          _utils.getHeightSizedBox(12.0),
+          buildRowPreferences(),
+          _utils.getHeightSizedBox(10.0),
+          buildRowPreferencesInput(),
+          _utils.getHeightSizedBox(10.0),
+          generateDynamicPreferences(),
+          _utils.getHeightSizedBox(35.0),
+          buildOutlineButtonSearch(context),
+        ],
+      ),
+    );
+  }
+
+  /*
+  * @return the row where the user can type in
+  * all his preferences/ name of the restaurant
+  * */
+  Row buildRowPreferencesInput() {
+    return Row(children: <Widget>[
+      _utils.getWitdthSizedBox(35.0),
+      Container(width: 225, child: TextFormField(
+          controller: prefereceController,
+          style: TextStyle(color: Colors.grey),
+          decoration: new InputDecoration(
+              hintText:
+              !_isCheckedPreference ? 'Eg. Restaurant, Pizza, Beer...' : ''),
+          onFieldSubmitted: (value) {
+            if (prefereceController.text.toString().isNotEmpty &&
+                prefereceController.text != 'Eg. Restaurant, Pizza, Beer...') {
+              setState(() {
+                _preferences.add(prefereceController.text.toString());
+              });
+              _isCheckedPreference = false;
+              prefereceController.text = '';
+            }
+          })),
+      _utils.getWitdthSizedBox(5.0)
+    ]);
+  }
+
+  /*
+  * @return the row with the question of the
+  * user's preferences
+  * */
+  Row buildRowPreferences() {
+    return Row(children: <Widget>[
+      Icon(
+        Icons.scatter_plot,
+        size: 30.0,
+        color: Colors.deepPurple,
+      ),
+      _utils.getWitdthSizedBox(5.0),
+      Text("What do you prefer?", style: TextStyle(fontSize: 20.0))
+    ]);
+  }
+
+  /*
+  * @return the row with the location selection
+  * The city Cluj-Napoca is preselected when this
+  * screen is opened
+  * */
+  Row buildRowLocation() {
+    return Row(children: <Widget>[
+      Icon(
+        Icons.location_on,
+        size: 30.0,
+        color: Colors.deepPurple,
+      ),
+      _utils.getWitdthSizedBox(5.0),
+      Text('Location', style: TextStyle(fontSize: 20.0)),
+      _utils.getWitdthSizedBox(15.0),
+      buildDropdownButtonLocation()
+    ]);
+  }
+
+  /*
+  * @return the button for the search
+  * */
+  OutlineButton buildOutlineButtonSearch(BuildContext context) {
+    return OutlineButton(
+      onPressed: () {
+        setState(() {
+          _preferences.isEmpty
+              ? searchAfterLocation(context)
+              : searchAfterLocationAndPreferences(context);
+        });
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0)),
+      borderSide: BorderSide(color: Colors.grey),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Let\'s go',
+              style: TextStyle(fontSize: 20, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /*
+  * @return the dropdown with all possible locations
+  * */
+  DropdownButton<String> buildDropdownButtonLocation() {
+    return DropdownButton<String>(
+        items: _locations.map((String val) {
+          return new DropdownMenuItem<String>(
+            value: val,
+            child: Text(
+              val,
+              style: TextStyle(fontSize: 20.0),
+            ),
+          );
+        }).toList(),
+        hint: Text(_selectedLocation),
+        onChanged: (newVal) {
+          _selectedLocation = newVal;
+          this.setState(() {});
+        });
+  }
+
+  /*
+  * Searches for locations based on the user's preferences.
+  * */
+  void searchAfterLocationAndPreferences(BuildContext context) {
+    LocalService().getFilteredLocals(_preferences, _selectedLocation).then((value) {
+      _foundLocals = value;
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => LocalsScreen(foundLocals: _foundLocals)));
+    });
+  }
+
+  /*
+  * When the user has no preferences, then all the search is based only
+  * on the location selected in the dropdown.
+  * */
+  void searchAfterLocation(BuildContext context) {
+    if(_selectedLocation.isNotEmpty) {
+      LocalService().getLocalsAfterLocation(_selectedLocation).then((value) {
+        _foundLocals = value;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => LocalsScreen(foundLocals: _foundLocals)));
+      });
+    } else {
+      LocalService().getLocals().then((value) {
+        _foundLocals = value;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => LocalsScreen(foundLocals: _foundLocals)));
+      });
+    }
+  }
+
+  /*
+  * @return an IconButton for the logout
+  * dialog
+  * */
+  IconButton buildIconButtonLogout() {
+    return IconButton(
+      icon: Icon(Icons.exit_to_app),
+      onPressed: () {
+        logoutDialog();
+      },
+    );
+  }
+
+  /*
+  * @return an IconButton for the notifications
+  * */
+  IconButton buildIconButtonNotification() {
+    return IconButton(
+      icon: Icon(Icons.notifications),
+      onPressed: () {},
+    );
+  }
+
+  /*
+  * @return an IconButton for the user's profile
+  * */
+  IconButton buildIconButtonProfile() {
+    return IconButton(
+      icon: AuthService.urlProfilePhoto != null
+          ? new CircleAvatar(
+              backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
+              radius: 15.0,
+              backgroundColor: Colors.white,
+            )
+          : Icon(Icons.account_circle),
+      onPressed: () {},
     );
   }
 
@@ -350,29 +326,15 @@ class _DashboardPageState extends State<DashboardPage> {
           padding: EdgeInsets.all(3.0),
           deleteIcon: Icon(Icons.clear, color: Colors.white, size: 15.0),
           onDeleted: (() {
-            setState(() {
-              _preferences.removeAt(index);
-            });
+            setState(
+              () {
+                _preferences.removeAt(index);
+              },
+            );
           }),
         );
       }),
     );
-  }
-
-  /*
-  * Validates the input of the form.
-  * Time and hour of the reservation are
-  * mandatory. Number of people must be
-  * greater than 0 and the preferences
-  * are optional.
-  * */
-  bool validateInput() {
-    final form = formKey.currentState;
-    if (!_validateDate && !_validateNb && !_validateTime) {
-      form.save();
-      return true;
-    }
-    return false;
   }
 
   /*

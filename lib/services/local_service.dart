@@ -9,7 +9,10 @@ class LocalService {
   final CollectionReference LOCAL_COLLECTION =
       Firestore.instance.collection('restaurants');
 
-  getLocals() async {
+  /*
+  * Gets all the locals from the database
+  * */
+   getLocals() async {
     QuerySnapshot snapshot = await LOCAL_COLLECTION.getDocuments();
     List<Local> locals = [];
 
@@ -21,17 +24,45 @@ class LocalService {
     return locals;
   }
 
-  getFilteredLocals(List<String> criteria) async {
+  /*
+  * Search locals after a given location
+  * and returns them.
+  * */
+  getLocalsAfterLocation(String city) async {
+    QuerySnapshot snapshot = await LOCAL_COLLECTION.getDocuments();
     List<Local> locals = [];
-    for (String c in criteria) {
-      QuerySnapshot query = await LOCAL_COLLECTION
-          .where('attractions', arrayContains: c)
-          .getDocuments();
-      query.documents.forEach((document) {
-        Local local = Local.fromJson(document.data);
-        local.id = FieldPath.documentId.toString();
+    snapshot.documents.forEach((document) {
+      Local local = Local.fromJson(document.data);
+      local.id = FieldPath.documentId.toString();
+      if(local.address.city == city) {
         locals.add(local);
-      });
+      }
+    });
+    return locals;
+  }
+
+  /*
+  * Filters the locals after the city and attractions. An
+  * attraction can be considered also the name of the local,
+  * so that the user can search directly a restaurant after
+  * its name.
+  * */
+  getFilteredLocals(List<String> criteria, String city) async {
+    List<Local> locals = [];
+    List<Local> allLocals = await getLocalsAfterLocation(city);
+    for(Local local in allLocals) {
+      for( String crit in criteria) {
+        if(local.name.contains(crit)) {
+          locals.add(local);
+          break;
+        }
+        for(String attraction in local.attractions) {
+          if(attraction.contains(crit)) {
+            locals.add(local);
+            break;
+          }
+        }
+      }
     }
     return locals.toSet().toList();
   }
