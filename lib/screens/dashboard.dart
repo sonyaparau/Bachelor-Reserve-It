@@ -22,6 +22,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final formKey = new GlobalKey<FormState>();
   final prefereceController = new TextEditingController();
   final CustomWidgets _utils = new CustomWidgets();
+  final AuthService  _authService = new AuthService();
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
@@ -97,7 +98,7 @@ class _DashboardPageState extends State<DashboardPage> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text('Reserve your table',
+          Text('Discover and book \n       new places',
               style: TextStyle(fontSize: 30.0)),
           _utils.getHeightSizedBox(50.0),
           _utils.getWitdthSizedBox(5.0),
@@ -345,7 +346,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: new Text(text),
       onPressed: () {
         Navigator.of(context).pop();
-        AuthService().signOut();
+        _authService.signOut();
       },
     );
   }

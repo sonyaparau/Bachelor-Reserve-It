@@ -16,6 +16,10 @@ class AuthService {
 
   static String urlProfilePhoto;
 
+  AuthService() {
+    getCurrentProfilePicture();
+  }
+
   /*
   * Checks when the application is started
   * if the user is already logged in.
@@ -121,5 +125,15 @@ class AuthService {
   // Sign out from the application
   signOut() {
     firebaseAuth.signOut();
+  }
+
+  getCurrentProfilePicture() async {
+    try {
+      await firebaseAuth
+          .currentUser()
+          .then((user) => urlProfilePhoto = user.photoUrl);
+    } catch(exception) {
+      print('No user profile.');
+    }
   }
 }

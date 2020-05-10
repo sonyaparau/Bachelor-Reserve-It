@@ -51,6 +51,9 @@ flutter:
     - assets/anonymous.png
     - assets/app_logo.png
     - assets/user_location.png
+    - assets/romania_flag.png
+    - assets/england_flag.png
+    - assets/germany_flag.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

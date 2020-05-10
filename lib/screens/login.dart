@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/models/current_location.dart';
+import 'package:reserve_it_app/screens/screenUtils/number_prefix.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/user_service.dart';
@@ -24,24 +25,26 @@ class _LoginPageState extends State<LoginPage> {
   // continue with 07 followed by 8 digits as it
   //is a Romanian number
   RegExp _phoneValidator = new RegExp(
-    r"\+407[0-9]{8}",
+    r"07[0-9]{8}",
     caseSensitive: false,
     multiLine: false,
   );
 
+  //TODO add comments
   String _phoneNumber;
   String _smsCode;
   String _verificationId;
   bool _sentVerificationCode = false;
   bool _loading = false;
+  List<NumberPrefix> _numberPrefixes = NumberPrefix.numberPrefixes();
+  NumberPrefix _predefinedPrefix = NumberPrefix.numberPrefixes().first;
 
   @override
   Widget build(BuildContext context) {
-   Provider.of<CurrentUserLocation>(context);
+    Provider.of<CurrentUserLocation>(context);
     return _loading
         ? Loading()
         : Scaffold(
-            appBar: AppBar(backgroundColor: Colors.deepPurple),
             backgroundColor: Colors.white,
             resizeToAvoidBottomPadding: true,
             body: new Center(
@@ -58,7 +61,10 @@ class _LoginPageState extends State<LoginPage> {
                               //if the Platform is Android/Ios then allow logging in with phone number
                               !kIsWeb
                                   ? <Widget>[
-                                        Image.asset('assets/reserve_logo.png'),
+                                        Image.asset(
+                                          'assets/reserve_logo.png',
+                                          height: 300,
+                                        ),
                                         _utils.getHeightSizedBox(10.0)
                                       ] +
                                       getMobileForm() +
@@ -69,7 +75,10 @@ class _LoginPageState extends State<LoginPage> {
                                       ]
                                   //if the Platform is Web then allow logging in anonymously
                                   : <Widget>[
-                                        Image.asset('assets/reserve_logo.png')
+                                        Image.asset(
+                                          'assets/reserve_logo.png',
+                                          height: 300,
+                                        )
                                       ] +
                                       [
                                         getAnonymousButton(),
@@ -101,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image(image: AssetImage("assets/facebook_logo.png"), height: 30.0),
+            Image(image: AssetImage("assets/facebook_logo.png"), height: 25.0),
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
@@ -137,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image(image: AssetImage("assets/google_logo.png"), height: 30.0),
+            Image(image: AssetImage("assets/google_logo.png"), height: 25.0),
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
@@ -170,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                 setLoadingState(false);
               }
             } else {
-              verifyPhone(_phoneNumber);
+              verifyPhone(_predefinedPrefix.numberPrefix + _phoneNumber);
             }
           }
         },
@@ -251,17 +260,25 @@ class _LoginPageState extends State<LoginPage> {
   * */
   List<Widget> getMobileForm() {
     return [
-          new TextFormField(
-            keyboardType: TextInputType.phone,
-            decoration: new InputDecoration(
-                labelText: 'Phone number', labelStyle: TextStyle(fontSize: 18)),
-            validator: (value) {
-              if (value.isEmpty) return 'Phone number is required!';
-              if (!_phoneValidator.hasMatch(value.trim()))
-                return 'Phone number format is invalid!';
-              return null;
-            },
-            onSaved: (value) => _phoneNumber = value,
+          new Row(
+            children: <Widget>[
+              new Flexible(child: buildDropdownButtonPhoneNr()),
+              _utils.getWitdthSizedBox(5.0),
+              new Flexible(
+                  child: new TextFormField(
+                keyboardType: TextInputType.phone,
+                decoration: new InputDecoration(
+                    labelText: 'Phone number',
+                    labelStyle: TextStyle(fontSize: 18)),
+                validator: (value) {
+                  if (value.isEmpty) return 'Phone number is required!';
+                  if (!_phoneValidator.hasMatch(value.trim()))
+                    return 'Phone number format is invalid!';
+                  return null;
+                },
+                onSaved: (value) => _phoneNumber = value,
+              )),
+            ],
           ),
           _utils.getHeightSizedBox(8.0)
         ] +
@@ -287,7 +304,7 @@ class _LoginPageState extends State<LoginPage> {
           _sentVerificationCode
               ? getVerifyButton('Login')
               : getVerifyButton('Verify phone number'),
-          _utils.getHeightSizedBox(15.0),
+          _utils.getHeightSizedBox(10.0),
         ];
   }
 
@@ -375,6 +392,42 @@ class _LoginPageState extends State<LoginPage> {
         child: new Text("OK"),
         onPressed: () {
           Navigator.of(context).pop();
+        });
+  }
+
+  /*
+  * @return the dropdown with all possible locations
+  * */
+  DropdownButton<NumberPrefix> buildDropdownButtonPhoneNr() {
+    return DropdownButton<NumberPrefix>(
+        isExpanded: false,
+        items: _numberPrefixes.map((NumberPrefix val) {
+          return new DropdownMenuItem<NumberPrefix>(
+            value: val,
+            child: Row(children: [
+              Image.asset(
+                val.flag,
+                fit: BoxFit.contain,
+                height: 24,
+                width: 32,
+              ),
+              Text('  ' + val.name, style: TextStyle(fontSize: 12)),
+            ]),
+          );
+        }).toList(),
+        hint: Row(children: [
+          Image.asset(
+            _predefinedPrefix.flag,
+            fit: BoxFit.contain,
+            height: 15,
+            width: 20,
+          ),
+          Text(' ' + ' (' + _predefinedPrefix.numberPrefix + ')',
+              style: TextStyle(fontSize: 15)),
+        ]),
+        onChanged: (newVal) {
+          _predefinedPrefix = newVal;
+          this.setState(() {});
         });
   }
 }
