@@ -32,6 +32,7 @@ dependencies:
   latlong:
   carousel_pro:
   url_launcher:
+  firebase_messaging:
 
 dev_dependencies:
   flutter_test:

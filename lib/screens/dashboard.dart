@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/screens/locals.dart';
+import 'package:reserve_it_app/screens/reservation_notification.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/local_service.dart';
@@ -23,6 +27,8 @@ class _DashboardPageState extends State<DashboardPage> {
   final prefereceController = new TextEditingController();
   final CustomWidgets _utils = new CustomWidgets();
   final AuthService  _authService = new AuthService();
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
@@ -43,6 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    initialize();
     return Scaffold(
       appBar: buildAppBar(),
       backgroundColor: Colors.white,
@@ -361,5 +368,40 @@ class _DashboardPageState extends State<DashboardPage> {
         Navigator.of(context).pop();
       },
     );
+  }
+
+  Future initialize() async {
+    if(Platform.isIOS) {
+      _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings());
+    }
+
+    _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print('onMessage $message');
+          _serializeAndNavigate(message);
+        },
+        onResume: (Map<String, dynamic> message) async {
+          print('onResume $message');
+          _serializeAndNavigate(message);
+        },
+        onLaunch: (Map<String, dynamic> message) async {
+          print('onLaunch $message');
+          _serializeAndNavigate(message);
+        }
+    );
+  }
+
+  _serializeAndNavigate(Map<String, dynamic> message) {
+    final notification = message['notification'];
+    final data = message['data'];
+    final String title = notification['title'];
+    final String body = notification['body'];
+    print('Message received!');
+    if(title == 'New reservation') {
+      final String text = data['message'];
+      final String userId = data['userId'];
+      final String reservationId = data['reservationId'];
+      print('received!');
+    }
   }
 }

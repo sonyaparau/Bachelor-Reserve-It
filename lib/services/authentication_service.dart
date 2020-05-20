@@ -5,6 +5,7 @@ import 'package:reserve_it_app/screens/login.dart';
 import 'package:reserve_it_app/screens/dashboard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:reserve_it_app/services/notification_service.dart';
 import 'package:reserve_it_app/services/user_service.dart';
 
 /*
@@ -13,6 +14,7 @@ import 'package:reserve_it_app/services/user_service.dart';
 class AuthService {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   UserService userService = new UserService();
+  final NotificationService _pushNotificationService = NotificationService();
 
   static String urlProfilePhoto;
 
@@ -132,8 +134,38 @@ class AuthService {
       await firebaseAuth
           .currentUser()
           .then((user) => urlProfilePhoto = user.photoUrl);
-    } catch(exception) {
+    } catch (exception) {
       print('No user profile.');
     }
+  }
+
+  Future<bool> isAnonymousUser() async{
+    bool isAnon = false;
+    try {
+      await firebaseAuth.currentUser().then((user) => isAnon = user.isAnonymous);
+      return isAnon;
+    } catch(exception) {
+      print('Error getting current user.');
+    }
+  }
+
+  Future<User> getUser() async {
+    User user;
+    FirebaseUser temporaryUser;
+    try {
+      await firebaseAuth.currentUser().then((user) => temporaryUser = user);
+    } catch (exception) {
+      print('Error getting current user.');
+    }
+    if (!temporaryUser.isAnonymous) {
+      try {
+        await userService.findUserById(temporaryUser.uid).then((value) => user = value);
+      } catch (exception) {
+        print('Error finding user document.');
+      }
+    } else {
+      user.uid = temporaryUser.uid;
+    }
+    return user;
   }
 }

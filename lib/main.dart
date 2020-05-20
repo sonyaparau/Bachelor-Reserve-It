@@ -20,11 +20,5 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: AuthService().handleAuthentication(),
         ));
-//    return MaterialApp(
-//      title: 'ReserveIt',
-//      theme: new ThemeData(primarySwatch: Colors.deepPurple),
-//      debugShowCheckedModeBanner: false,
-//      home: AuthService().handleAuthentication(),
-//    );
   }
 }

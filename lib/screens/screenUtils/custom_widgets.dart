@@ -6,6 +6,8 @@ import 'package:rating_bar/rating_bar.dart';
 import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
+import 'package:reserve_it_app/screens/reservation_dialog_helper.dart';
+import 'package:reserve_it_app/services/authentication_service.dart';
 
 /*
 * Class with useful methods for creating
@@ -13,8 +15,9 @@ import 'package:reserve_it_app/screens/local_details.dart';
 * screens of the application.
 * */
 class CustomWidgets {
-
   double _km = -1;
+  AuthService _authService = AuthService();
+
   /*
   * Returns a sized box for the height
   * between two objects.
@@ -115,7 +118,13 @@ class CustomWidgets {
                         'Reserve now',
                         style: TextStyle(fontSize: 12),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (local != null) {
+                          _authService.getUser().then((user) =>
+                              ReservationDialogHelper.reserve(
+                                  context, local, user));
+                        }
+                      },
                     )
                   ]),
                 )
@@ -123,7 +132,8 @@ class CustomWidgets {
             ),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => LocalDetails(selectedLocal: local, distance: _km)));
+                  builder: (context) =>
+                      LocalDetails(selectedLocal: local, distance: _km)));
             }),
       ),
     ));
@@ -141,7 +151,8 @@ class CustomWidgets {
       distance /= 1000;
       return [
         Icon(Icons.location_on, size: 20, color: Colors.red),
-        Text( distance.toStringAsFixed(1) + ' km', style: TextStyle(color: Colors.grey, fontSize: 15))
+        Text(distance.toStringAsFixed(1) + ' km',
+            style: TextStyle(color: Colors.grey, fontSize: 15))
       ];
     } else {
       return [

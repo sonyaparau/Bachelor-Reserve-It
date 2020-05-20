@@ -6,19 +6,19 @@ import 'package:reserve_it_app/models/local.dart';
 * */
 class LocalService {
   //local collection reference
-  final CollectionReference LOCAL_COLLECTION =
+  final CollectionReference localCollection =
       Firestore.instance.collection('restaurants');
 
   /*
   * Gets all the locals from the database
   * */
    getLocals() async {
-    QuerySnapshot snapshot = await LOCAL_COLLECTION.getDocuments();
+    QuerySnapshot snapshot = await localCollection.getDocuments();
     List<Local> locals = [];
 
     snapshot.documents.forEach((document) {
       Local local = Local.fromJson(document.data);
-      local.id = FieldPath.documentId.toString();
+      local.id = document.documentID;
       locals.add(local);
     });
     return locals;
@@ -29,11 +29,11 @@ class LocalService {
   * and returns them.
   * */
   getLocalsAfterLocation(String city) async {
-    QuerySnapshot snapshot = await LOCAL_COLLECTION.getDocuments();
+    QuerySnapshot snapshot = await localCollection.getDocuments();
     List<Local> locals = [];
     snapshot.documents.forEach((document) {
       Local local = Local.fromJson(document.data);
-      local.id = FieldPath.documentId.toString();
+      local.id = document.documentID;
       if(local.address.city == city) {
         locals.add(local);
       }
