@@ -1,14 +1,18 @@
-import 'dart:io';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:reserve_it_app/models/local.dart';
+import 'package:reserve_it_app/models/notification.dart' as model;
+import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/locals.dart';
-import 'package:reserve_it_app/screens/reservation_notification.dart';
+import 'package:reserve_it_app/screens/notification_view.dart';
+import 'package:reserve_it_app/screens/profile.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/local_service.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
+import 'package:reserve_it_app/services/notification_service.dart';
+import 'package:reserve_it_app/services/device_service.dart';
 
 /*
 * Dashboard Screen where the user can see his
@@ -24,11 +28,12 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final formKey = new GlobalKey<FormState>();
-  final prefereceController = new TextEditingController();
+  final preferenceController = new TextEditingController();
   final CustomWidgets _utils = new CustomWidgets();
-  final AuthService  _authService = new AuthService();
+  final AuthService _authService = new AuthService();
+  final LocalService _localService = new LocalService();
+  final NotificationService _notificationService = new NotificationService();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
@@ -43,8 +48,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void dispose() {
-    prefereceController.dispose();
+    preferenceController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    DeviceService().getDeviceToken();
+    initialize();
   }
 
   @override
@@ -130,22 +142,26 @@ class _DashboardPageState extends State<DashboardPage> {
   Row buildRowPreferencesInput() {
     return Row(children: <Widget>[
       _utils.getWitdthSizedBox(35.0),
-      Container(width: 225, child: TextFormField(
-          controller: prefereceController,
-          style: TextStyle(color: Colors.grey),
-          decoration: new InputDecoration(
-              hintText:
-              !_isCheckedPreference ? 'Eg. Restaurant, Pizza, Beer...' : ''),
-          onFieldSubmitted: (value) {
-            if (prefereceController.text.toString().isNotEmpty &&
-                prefereceController.text != 'Eg. Restaurant, Pizza, Beer...') {
-              setState(() {
-                _preferences.add(prefereceController.text.toString());
-              });
-              _isCheckedPreference = false;
-              prefereceController.text = '';
-            }
-          })),
+      Container(
+          width: 225,
+          child: TextFormField(
+              controller: preferenceController,
+              style: TextStyle(color: Colors.grey),
+              decoration: new InputDecoration(
+                  hintText: !_isCheckedPreference
+                      ? 'Eg. Restaurant, Pizza, Beer...'
+                      : ''),
+              onFieldSubmitted: (value) {
+                if (preferenceController.text.toString().isNotEmpty &&
+                    preferenceController.text !=
+                        'Eg. Restaurant, Pizza, Beer...') {
+                  setState(() {
+                    _preferences.add(preferenceController.text.toString());
+                  });
+                  _isCheckedPreference = false;
+                  preferenceController.text = '';
+                }
+              })),
       _utils.getWitdthSizedBox(5.0)
     ]);
   }
@@ -239,7 +255,9 @@ class _DashboardPageState extends State<DashboardPage> {
   * Searches for locations based on the user's preferences.
   * */
   void searchAfterLocationAndPreferences(BuildContext context) {
-    LocalService().getFilteredLocals(_preferences, _selectedLocation).then((value) {
+    LocalService()
+        .getFilteredLocals(_preferences, _selectedLocation)
+        .then((value) {
       _foundLocals = value;
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => LocalsScreen(foundLocals: _foundLocals)));
@@ -251,7 +269,7 @@ class _DashboardPageState extends State<DashboardPage> {
   * on the location selected in the dropdown.
   * */
   void searchAfterLocation(BuildContext context) {
-    if(_selectedLocation.isNotEmpty) {
+    if (_selectedLocation.isNotEmpty) {
       LocalService().getLocalsAfterLocation(_selectedLocation).then((value) {
         _foundLocals = value;
         Navigator.of(context).push(MaterialPageRoute(
@@ -285,7 +303,9 @@ class _DashboardPageState extends State<DashboardPage> {
   IconButton buildIconButtonNotification() {
     return IconButton(
       icon: Icon(Icons.notifications),
-      onPressed: () {},
+      onPressed: () {
+        _checkReservations();
+      },
     );
   }
 
@@ -301,7 +321,10 @@ class _DashboardPageState extends State<DashboardPage> {
               backgroundColor: Colors.white,
             )
           : Icon(Icons.account_circle),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ProfileScreen()));
+      },
     );
   }
 
@@ -371,37 +394,71 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future initialize() async {
-    if(Platform.isIOS) {
-      _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings());
-    }
-
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-          print('onMessage $message');
-          _serializeAndNavigate(message);
-        },
-        onResume: (Map<String, dynamic> message) async {
-          print('onResume $message');
-          _serializeAndNavigate(message);
-        },
-        onLaunch: (Map<String, dynamic> message) async {
-          print('onLaunch $message');
-          _serializeAndNavigate(message);
-        }
-    );
+      print('onMessage $message');
+      _serializeAndNavigate(message);
+    }, onResume: (Map<String, dynamic> message) async {
+      print('onResume $message');
+      _serializeAndNavigate(message);
+    }, onLaunch: (Map<String, dynamic> message) async {
+      print('onLaunch $message');
+      _serializeAndNavigate(message);
+    });
   }
 
   _serializeAndNavigate(Map<String, dynamic> message) {
     final notification = message['notification'];
     final data = message['data'];
     final String title = notification['title'];
-    final String body = notification['body'];
-    print('Message received!');
-    if(title == 'New reservation') {
-      final String text = data['message'];
-      final String userId = data['userId'];
-      final String reservationId = data['reservationId'];
-      print('received!');
+    if (title == 'New reservation') {
+      String message = '';
+      message +=
+          'A new reservation has been made \nwith the following information: \n';
+      message += "\n";
+      message += 'Name: ';
+      message += data['fName'];
+      message += ' ';
+      message += data['lName'];
+      message += "\n";
+      message += 'Mobile number: ';
+      message += data['number'];
+      message += "\n";
+      message += 'Date: ';
+      message += data['reservationDate'];
+      message += "\n";
+      message += 'Time: ';
+      message += data['reservationTime'];
+      message += "\n";
+      message += 'Number of people: ';
+      message += data['nbPeople'];
+      print(message);
+      model.Notification notificationReservation = model.Notification();
+      notificationReservation.message = message;
+      notificationReservation.reservationId = data['reservationId'];
+      notificationReservation.restaurantId = data['restaurantId'];
+      NotificationService()
+          .addNewNotificationReservation(notificationReservation);
     }
+  }
+
+  _checkReservations() async {
+    User loggedUser;
+    Local local;
+    List<model.Notification> notifications = [];
+    await _authService.getUser().then((user) => loggedUser = user);
+    if (loggedUser.phone != null) {
+      await _localService
+          .searchLocalByPhoneNumber(loggedUser.phone)
+          .then((restaurant) => local = restaurant);
+      if (local != null) {
+        await _notificationService
+            .findNewNotificationByLocalId(local.id)
+            .then((notificationList) => notifications = notificationList);
+      }
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            NotificationsScreen(notifications: notifications)));
   }
 }

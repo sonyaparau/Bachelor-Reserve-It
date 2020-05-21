@@ -1,0 +1,182 @@
+import 'package:flutter/material.dart';
+import 'package:reserve_it_app/enums/reservation_status.dart';
+import 'package:reserve_it_app/models/notification.dart' as model;
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
+import 'package:reserve_it_app/services/notification_service.dart';
+import 'package:reserve_it_app/services/reservation_service.dart';
+
+class NotificationsScreen extends StatefulWidget {
+  final List<model.Notification> notifications;
+
+  NotificationsScreen({Key key, @required this.notifications})
+      : super(key: key);
+
+  @override
+  _NotificationsScreenState createState() =>
+      _NotificationsScreenState(notifications);
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  List<model.Notification> notifications;
+  CustomWidgets _customWidgets = CustomWidgets();
+  final ReservationService _reservationService = ReservationService();
+  final NotificationService _notificationService = NotificationService();
+
+  _NotificationsScreenState(this.notifications);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.deepPurple,
+          title: Text('Notifications'),
+          centerTitle: true,
+        ),
+        resizeToAvoidBottomPadding: true,
+        body: notifications.length > 0
+            ? Center(
+                child: new Container(
+                    width: 800,
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Expanded(child: buildListViewRestaurants())
+                        ])))
+            : Center(child: buildContainerEmptyListView()));
+  }
+
+  ListView buildListViewRestaurants() {
+    return ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          return buildCard(index);
+        },
+        itemCount: notifications.length);
+  }
+
+  Container buildContainerEmptyListView() {
+    return Container(
+        child:
+            Text('No new notifications ☹️', style: TextStyle(fontSize: 20.0)));
+  }
+
+  Widget buildCard(int index) {
+    return SingleChildScrollView(
+        child: Container(
+      child: Card(
+        child: ListTile(
+          title: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications, color: Colors.redAccent),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      notifications[index].type == 0
+                          ? 'New Reservation'
+                          : 'Response',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                child: Row(children: [
+                  Text(notifications[index].message,
+                      style: TextStyle(fontSize: 18, color: Colors.black)),
+                ]),
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 270,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.check_box,
+                      color: Colors.green,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _acceptReservation(index);
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.cancel,
+                      color: Colors.redAccent,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _cancelReservation(index);
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ));
+  }
+
+  void _cancelReservation(int index) {
+    _updateStatusNotification(false, notifications[index].id);
+    _updateReservation(false, notifications[index].reservationId);
+    notifications.removeAt(index);
+    _customWidgets.getPopup(
+        'Reservation canceled',
+        'The reservation was successfully canceled! The user will be soon notified!',
+        context,
+        [_okButtonResponseDialog()]);
+  }
+
+  FlatButton _okButtonResponseDialog() {
+    return new FlatButton(
+        child: new Text("OK"),
+        onPressed: () {
+          Navigator.of(context).pop();
+        });
+  }
+
+  void _acceptReservation(int index) {
+    _updateStatusNotification(true, notifications[index].id);
+    _updateReservation(true, notifications[index].reservationId);
+    notifications.removeAt(index);
+    _customWidgets.getPopup(
+        'Reservation created',
+        'The reservation was successfully saved! The user will be soon notified!',
+        context,
+        [_okButtonResponseDialog()]);
+  }
+
+  _updateReservation(bool confirmed, String reservationId) {
+    Map<String, dynamic> updateData = _generateUpdateData(confirmed);
+    _reservationService.updateReservationStatus(updateData, reservationId);
+  }
+
+  _updateStatusNotification(bool confirmed, String notificationId) {
+    Map<String, dynamic> updateData = _generateUpdateData(confirmed);
+    _notificationService.updateNotificationStatus(notificationId, updateData);
+  }
+
+  Map<String, dynamic> _generateUpdateData(bool confirmed) {
+    Map<String, dynamic> updateData = Map<String, dynamic>();
+    if (confirmed) {
+      updateData.putIfAbsent('status', () => ReservationStatus.ACCEPTED.index);
+    } else {
+      updateData.putIfAbsent('status', () => ReservationStatus.DECLINED.index);
+    }
+    return updateData;
+  }
+}

@@ -1,5 +1,5 @@
 /*
-* Class for the address entity.
+* Class for the address of a local.
 * */
 class Address {
   String city;

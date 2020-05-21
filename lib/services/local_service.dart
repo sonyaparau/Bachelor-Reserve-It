@@ -12,7 +12,7 @@ class LocalService {
   /*
   * Gets all the locals from the database
   * */
-   getLocals() async {
+  getLocals() async {
     QuerySnapshot snapshot = await localCollection.getDocuments();
     List<Local> locals = [];
 
@@ -34,7 +34,7 @@ class LocalService {
     snapshot.documents.forEach((document) {
       Local local = Local.fromJson(document.data);
       local.id = document.documentID;
-      if(local.address.city == city) {
+      if (local.address.city == city) {
         locals.add(local);
       }
     });
@@ -50,14 +50,14 @@ class LocalService {
   getFilteredLocals(List<String> criteria, String city) async {
     List<Local> locals = [];
     List<Local> allLocals = await getLocalsAfterLocation(city);
-    for(Local local in allLocals) {
-      for( String crit in criteria) {
-        if(local.name.contains(crit)) {
+    for (Local local in allLocals) {
+      for (String crit in criteria) {
+        if (local.name.contains(crit)) {
           locals.add(local);
           break;
         }
-        for(String attraction in local.attractions) {
-          if(attraction.contains(crit)) {
+        for (String attraction in local.attractions) {
+          if (attraction.contains(crit)) {
             locals.add(local);
             break;
           }
@@ -65,5 +65,21 @@ class LocalService {
       }
     }
     return locals.toSet().toList();
+  }
+
+  Future<Local> searchLocalByPhoneNumber(String phoneNumber) async {
+    QuerySnapshot snapshot = await localCollection.getDocuments();
+    Local foundLocal;
+    snapshot.documents.forEach((document) {
+      Local local = Local.fromJson(document.data);
+      local.id = document.documentID;
+      if (local.phoneNumber == phoneNumber) {
+        foundLocal = local;
+      }
+    });
+    if (foundLocal != null) {
+      return foundLocal;
+    }
+    return null;
   }
 }

@@ -5,7 +5,6 @@ import 'package:reserve_it_app/screens/login.dart';
 import 'package:reserve_it_app/screens/dashboard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
-import 'package:reserve_it_app/services/notification_service.dart';
 import 'package:reserve_it_app/services/user_service.dart';
 
 /*
@@ -14,7 +13,6 @@ import 'package:reserve_it_app/services/user_service.dart';
 class AuthService {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   UserService userService = new UserService();
-  final NotificationService _pushNotificationService = NotificationService();
 
   static String urlProfilePhoto;
 
@@ -146,6 +144,7 @@ class AuthService {
       return isAnon;
     } catch(exception) {
       print('Error getting current user.');
+      return isAnon;
     }
   }
 

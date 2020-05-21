@@ -4,8 +4,10 @@ import 'package:reserve_it_app/enums/reservation_status.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/reservation.dart';
 import 'package:reserve_it_app/models/user.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:reserve_it_app/screens/screenUtils/input_validators.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
+import 'package:reserve_it_app/services/device_service.dart';
 import 'package:reserve_it_app/services/reservation_service.dart';
 import 'package:reserve_it_app/services/user_service.dart';
 
@@ -24,9 +26,10 @@ class ReservationDialog extends StatefulWidget {
 
 class _ReservationDialogState extends State<ReservationDialog> {
   final formKey = new GlobalKey<FormState>();
+  CustomWidgets _customWidgets = CustomWidgets();
+  final DeviceService _deviceService = DeviceService();
   Local _reservedLocal;
   User _loggedUser;
-  String _deviceToken;
 
   String _firstName;
   String _lastName;
@@ -249,6 +252,14 @@ class _ReservationDialogState extends State<ReservationDialog> {
                             onPressed: () {
                               if (validateInput()) {
                                 _makeReservation();
+                                Navigator.of(context).pop();
+                                _customWidgets.getPopup(
+                                    'Reservation sent',
+                                    'The request has been sent to the local. You will '
+                                        'receive a notification as soon as the local responds '
+                                        'to your request. Stay tuned!',
+                                    context,
+                                    []);
                               }
                             },
                           ),
@@ -323,13 +334,15 @@ class _ReservationDialogState extends State<ReservationDialog> {
     return false;
   }
 
-  _makeReservation() async{
+  _makeReservation() async {
     _updateInformationUser();
 
     String deviceToken = '';
+    String userDevice = '';
     await UserService()
         .findTokenUser(_reservedLocal.phoneNumber)
         .then((value) => deviceToken = value);
+    await DeviceService().getDeviceToken().then((token) => userDevice = token);
     Reservation reservation = Reservation(
         user: _loggedUser,
         local: _reservedLocal,
@@ -337,7 +350,8 @@ class _ReservationDialogState extends State<ReservationDialog> {
         date: _displayDate(),
         time: _displayTime(),
         numberPeople: int.parse(_numberPeople),
-        deviceToSend: deviceToken);
+        deviceToSend: deviceToken,
+        userDevice: userDevice);
     ReservationService().addReservation(reservation);
   }
 
@@ -362,11 +376,5 @@ class _ReservationDialogState extends State<ReservationDialog> {
         UserService().updateUser(updateData, _loggedUser.uid);
       }
     }
-  }
-
-   _getDeviceToken() async {
-    await UserService()
-        .findTokenUser(_reservedLocal.phoneNumber)
-        .then((value) => _deviceToken = value);
   }
 }

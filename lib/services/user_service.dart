@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:reserve_it_app/models/user.dart';
-import 'package:reserve_it_app/services/notification_service.dart';
+import 'package:reserve_it_app/services/device_service.dart';
 
 /*
 * Service for the entity User.
@@ -9,7 +9,7 @@ class UserService {
   //user collection reference
   final CollectionReference userCollection =
       Firestore.instance.collection('users');
-  NotificationService _notificationService = new NotificationService();
+  DeviceService _notificationService = new DeviceService();
 
   /*
   * Creates a new document in the User collection
@@ -73,7 +73,7 @@ class UserService {
     userCollection.document(id).updateData(data);
   }
 
-  Future<String> findTokenUser(String phoneNumber) async{
+  Future<String> findTokenUser(String phoneNumber) async {
     String deviceToken;
     QuerySnapshot snapshot = await userCollection.where('phoneNumber', isEqualTo: phoneNumber).getDocuments();
     snapshot.documents.forEach((element) {
