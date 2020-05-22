@@ -1,5 +1,3 @@
-import 'package:reserve_it_app/enums/reservation_status.dart';
-
 /*
 * Notification entity that provides
 * the communication between the local and
@@ -9,8 +7,9 @@ class Notification {
   String id;
   String message;
   String restaurantId;
-  ReservationStatus status;
+  int status;
   String reservationId;
+  String userId;
   bool read;
   int type;
 
@@ -20,5 +19,6 @@ class Notification {
       this.status,
       this.reservationId,
       this.read,
-      this.type});
+      this.type,
+      this.userId});
 }

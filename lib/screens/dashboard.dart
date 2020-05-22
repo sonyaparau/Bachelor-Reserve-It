@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:reserve_it_app/enums/notification_type.dart';
+import 'package:reserve_it_app/enums/reservation_status.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/notification.dart' as model;
 import 'package:reserve_it_app/models/user.dart';
@@ -412,34 +414,83 @@ class _DashboardPageState extends State<DashboardPage> {
     final data = message['data'];
     final String title = notification['title'];
     if (title == 'New reservation') {
-      String message = '';
-      message +=
-          'A new reservation has been made \nwith the following information: \n';
-      message += "\n";
-      message += 'Name: ';
-      message += data['fName'];
-      message += ' ';
-      message += data['lName'];
-      message += "\n";
-      message += 'Mobile number: ';
-      message += data['number'];
-      message += "\n";
-      message += 'Date: ';
-      message += data['reservationDate'];
-      message += "\n";
-      message += 'Time: ';
-      message += data['reservationTime'];
-      message += "\n";
-      message += 'Number of people: ';
-      message += data['nbPeople'];
-      print(message);
+      String message = _createMessageNewReservation(data);
       model.Notification notificationReservation = model.Notification();
       notificationReservation.message = message;
       notificationReservation.reservationId = data['reservationId'];
       notificationReservation.restaurantId = data['restaurantId'];
-      NotificationService()
-          .addNewNotificationReservation(notificationReservation);
+      notificationReservation.type = NotificationType.REQUEST.index;
+      notificationReservation.status = ReservationStatus.PENDING.index;
+      _notificationService.addNewNotificationReservation(notificationReservation);
     }
+    if(title == 'Reservation accepted') {
+      String message = _createMessageAcceptedReservation(data);
+      model.Notification notificationReservation = model.Notification();
+      notificationReservation.message = message;
+      notificationReservation.reservationId = data['reservationId'];
+      notificationReservation.restaurantId = data['restaurantId'];
+      notificationReservation.userId = data['personId'];
+      notificationReservation.type = NotificationType.RESPONSE.index;
+      notificationReservation.status = ReservationStatus.ACCEPTED.index;
+      _notificationService.addNewNotificationReservation(notificationReservation);
+    }
+    if(title == 'Reservation declined') {
+      String message = _createMessageCanceledReservation(data);
+      model.Notification notificationReservation = model.Notification();
+      notificationReservation.message = message;
+      notificationReservation.reservationId = data['reservationId'];
+      notificationReservation.restaurantId = data['restaurantId'];
+      notificationReservation.userId = data['personId'];
+      notificationReservation.type = NotificationType.RESPONSE.index;
+      notificationReservation.status = ReservationStatus.DECLINED.index;
+      _notificationService.addNewNotificationReservation(notificationReservation);
+    }
+  }
+
+  String _createMessageNewReservation(data) {
+    String message = '';
+    message +=
+        'A new reservation has been made \nwith the following information: \n';
+    message += "\n";
+    message += 'Name: ';
+    message += data['fName'];
+    message += ' ';
+    message += data['lName'];
+    message += "\n";
+    message += 'Mobile number: ';
+    message += data['number'];
+    message += "\n";
+    message += 'Date: ';
+    message += data['reservationDate'];
+    message += "\n";
+    message += 'Time: ';
+    message += data['reservationTime'];
+    message += "\n";
+    message += 'Number of people: ';
+    message += data['nbPeople'];
+    return message;
+  }
+
+  String _createMessageAcceptedReservation(data) {
+    String message = data['message'];
+    message += "\n";
+    message += 'Date: ';
+    message += data['date'];
+    message += "\n";
+    message += 'Time: ';
+    message += data['time'];
+    return message;
+  }
+
+  String _createMessageCanceledReservation(data) {
+    String message = data['message'];
+    message += "\n";
+    message += 'Date: ';
+    message += data['date'];
+    message += "\n";
+    message += 'Time: ';
+    message += data['time'];
+    return message;
   }
 
   _checkReservations() async {
@@ -451,10 +502,20 @@ class _DashboardPageState extends State<DashboardPage> {
       await _localService
           .searchLocalByPhoneNumber(loggedUser.phone)
           .then((restaurant) => local = restaurant);
+      //restaurant owner
       if (local != null) {
         await _notificationService
-            .findNewNotificationByLocalId(local.id)
+            .findUnrespondedNotificationsForLocal(local.id)
             .then((notificationList) => notifications = notificationList);
+      }
+      //client notification
+      else {
+        if(loggedUser.uid != null) {
+          print('User ID: ' + loggedUser.uid);
+          await _notificationService
+              .findNotificationsForUser(loggedUser.uid)
+              .then((notificationList) => notifications = notificationList);
+        }
       }
     }
     Navigator.of(context).push(MaterialPageRoute(

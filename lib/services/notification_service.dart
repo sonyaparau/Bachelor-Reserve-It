@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:reserve_it_app/enums/notification_type.dart';
-import 'package:reserve_it_app/enums/reservation_status.dart';
 import 'package:reserve_it_app/models/notification.dart';
 
 class NotificationService {
@@ -11,14 +9,15 @@ class NotificationService {
     return await notificationCollection.document().setData({
       'message': notification.message,
       'restaurantId': notification.restaurantId,
-      'status': ReservationStatus.PENDING.index,
+      'status': notification.status,
       'reservationId': notification.reservationId,
+      'userId': notification.userId,
       'read': false,
-      'type': NotificationType.REQUEST.index
+      'type': notification.type
     });
   }
 
-  Future<List<Notification>> findNewNotificationByLocalId(
+  Future<List<Notification>> findUnrespondedNotificationsForLocal(
       String localId) async {
     List<Notification> notifications = [];
     QuerySnapshot snapshot = await notificationCollection
@@ -26,13 +25,40 @@ class NotificationService {
         .getDocuments();
     snapshot.documents.forEach((element) {
       Map<String, dynamic> data = element.data;
-      if (data.containsKey('status')) {
-        if (data['status'] == 0) {
+      if (data.containsKey('status') && data.containsKey('type')) {
+        //restaurant new reservation
+        //status == 0: pending
+        //type == 0: request
+        if (data['type'] == 0 && data['status'] == 0) {
           Notification notification = new Notification();
           notification.message = data['message'];
           notification.reservationId = data['reservationId'];
           notification.id = element.documentID;
           notification.type = data['type'];
+          notifications.add(notification);
+        }
+      }
+    });
+    return notifications;
+  }
+
+  Future<List<Notification>> findNotificationsForUser(String userId) async {
+    List<Notification> notifications = [];
+    QuerySnapshot snapshot = await notificationCollection
+        .where('userId', isEqualTo: userId)
+        .getDocuments();
+    snapshot.documents.forEach((element) {
+      Map<String, dynamic> data = element.data;
+      if (data.containsKey('status') && data.containsKey('read')) {
+        //restaurant new reservation
+        if (data['read'] == false &&
+            (data['status'] == 1 || data['status'] == 2)) {
+          Notification notification = new Notification();
+          notification.message = data['message'];
+          notification.reservationId = data['reservationId'];
+          notification.id = element.documentID;
+          notification.type = data['type'];
+          notification.status = data['status'];
           notifications.add(notification);
         }
       }

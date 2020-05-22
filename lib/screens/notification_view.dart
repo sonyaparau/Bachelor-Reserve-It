@@ -75,13 +75,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(
-                      notifications[index].type == 0
-                          ? 'New Reservation'
-                          : 'Response',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    )
+                    _getNotificationTitle(index)
                   ],
                 ),
               ),
@@ -92,42 +86,74 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.black)),
                 ]),
               ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 270,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.check_box,
-                      color: Colors.green,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _acceptReservation(index);
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.cancel,
-                      color: Colors.redAccent,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _cancelReservation(index);
-                      });
-                    },
-                  ),
-                ],
-              ),
+              buildRowAcceptDecline(index),
             ],
           ),
         ),
       ),
     ));
+  }
+
+  Row buildRowAcceptDecline(int index) {
+    List<Widget> buttons = [];
+    if (notifications[index].type == 0) {
+      buttons = [
+        SizedBox(
+          width: 270,
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.check_box,
+            color: Colors.green,
+            size: 30,
+          ),
+          onPressed: () {
+            setState(() {
+              _acceptReservation(index);
+            });
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.cancel,
+            color: Colors.redAccent,
+            size: 30,
+          ),
+          onPressed: () {
+            setState(() {
+              _cancelReservation(index);
+            });
+          },
+        ),
+      ];
+    }
+    return Row(
+      children: buttons,
+    );
+  }
+
+  Text _getNotificationTitle(int index) {
+    if (notifications[index].type == 0) {
+      return Text(
+        'New Reservation',
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      );
+    } else {
+      //accepted
+      if (notifications[index].status == 1) {
+        return Text(
+          'Reservation accepted',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        );
+      }
+      //declined
+      if (notifications[index].status == 2) {
+        return Text(
+          'Reservation declined',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        );
+      }
+    }
   }
 
   void _cancelReservation(int index) {
