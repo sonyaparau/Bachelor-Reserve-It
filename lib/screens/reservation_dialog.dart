@@ -27,7 +27,6 @@ class ReservationDialog extends StatefulWidget {
 class _ReservationDialogState extends State<ReservationDialog> {
   final formKey = new GlobalKey<FormState>();
   CustomWidgets _customWidgets = CustomWidgets();
-  final DeviceService _deviceService = DeviceService();
   Local _reservedLocal;
   User _loggedUser;
 

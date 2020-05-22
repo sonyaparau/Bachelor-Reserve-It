@@ -7,6 +7,8 @@ class Notification {
   String id;
   String message;
   String restaurantId;
+  String localName;
+  String localPicture;
   int status;
   String reservationId;
   String userId;

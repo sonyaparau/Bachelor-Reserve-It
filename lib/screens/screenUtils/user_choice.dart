@@ -8,8 +8,9 @@ class UserChoice {
   const UserChoice({this.title, this.icon});
 
   static List<UserChoice> userChoice = <UserChoice> [
-    UserChoice(title: '   Your profile  ', icon: Icons.account_box),
+    UserChoice(title: 'Your profile', icon: Icons.account_box),
     UserChoice(title: 'Favourite locals', icon: Icons.favorite),
     UserChoice(title: 'Future reservations', icon: Icons.date_range),
+    UserChoice(title: 'Past reservations', icon: Icons.history),
   ];
 }

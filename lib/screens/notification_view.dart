@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/enums/reservation_status.dart';
 import 'package:reserve_it_app/models/notification.dart' as model;
@@ -61,37 +62,100 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget buildCard(int index) {
-    return SingleChildScrollView(
-        child: Container(
-      child: Card(
-        child: ListTile(
-          title: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.notifications, color: Colors.redAccent),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    _getNotificationTitle(index)
-                  ],
+    if (notifications[index].localPicture != null) {
+      return SingleChildScrollView(
+          child: Container(
+        child: Card(
+          child: ListTile(
+            leading: Image.network(notifications[index].localPicture,
+                width: 90, fit: BoxFit.fitWidth),
+            onTap: () {
+              setState(() {
+                if (!notifications[index].read) {
+                  _updateReadStatus(notifications[index].id);
+                }
+              });
+            },
+            title: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: Row(
+                    children: [
+                      _getNotificationItem(index),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      _getNotificationTitle(index)
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                child: Row(children: [
-                  Text(notifications[index].message,
-                      style: TextStyle(fontSize: 18, color: Colors.black)),
-                ]),
-              ),
-              buildRowAcceptDecline(index),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(children: [
+                    Expanded(
+                      child: Text(notifications[index].message,
+                          style: TextStyle(fontSize: 18, color: Colors.black)),
+                    ),
+                  ]),
+                ),
+                buildRowAcceptDecline(index),
+              ],
+            ),
           ),
         ),
-      ),
-    ));
+      ));
+    } else {
+      return SingleChildScrollView(
+          child: Container(
+        child: Card(
+          child: ListTile(
+            title: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: new Row(
+                    children: [
+                      _getNotificationItem(index),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      _getNotificationTitle(index)
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(children: [
+                    Expanded(
+                      child: Text(notifications[index].message,
+                          style: TextStyle(fontSize: 18, color: Colors.black)),
+                    ),
+                  ]),
+                ),
+                buildRowAcceptDecline(index),
+              ],
+            ),
+          ),
+        ),
+      ));
+    }
+  }
+
+  Widget _getNotificationItem(int index) {
+    //pending
+    if (notifications[index].status == 0) {
+      return Icon(Icons.notifications, color: Colors.redAccent);
+    }
+    //accepted
+    if (notifications[index].status == 1) {
+      return Icon(Icons.check, color: Colors.green);
+    }
+    //declined
+    if (notifications[index].status == 2) {
+      return Icon(Icons.close, color: Colors.redAccent);
+    }
+    return Icon(Icons.help, color: Colors.redAccent);
   }
 
   Row buildRowAcceptDecline(int index) {
@@ -132,25 +196,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Text _getNotificationTitle(int index) {
+  Widget _getNotificationTitle(int index) {
+    bool notificationRead = notifications[index].read;
     if (notifications[index].type == 0) {
       return Text(
         'New Reservation',
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        style: TextStyle(
+            fontSize: 22,
+            fontWeight: notificationRead ? FontWeight.normal : FontWeight.bold),
       );
     } else {
       //accepted
       if (notifications[index].status == 1) {
         return Text(
           'Reservation accepted',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight:
+                  notificationRead ? FontWeight.normal : FontWeight.bold),
         );
       }
       //declined
       if (notifications[index].status == 2) {
         return Text(
           'Reservation declined',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight:
+                  notificationRead ? FontWeight.normal : FontWeight.bold),
         );
       }
     }
@@ -193,7 +266,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   _updateStatusNotification(bool confirmed, String notificationId) {
     Map<String, dynamic> updateData = _generateUpdateData(confirmed);
-    _notificationService.updateNotificationStatus(notificationId, updateData);
+    _notificationService.updateNotification(notificationId, updateData);
   }
 
   Map<String, dynamic> _generateUpdateData(bool confirmed) {
@@ -204,5 +277,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       updateData.putIfAbsent('status', () => ReservationStatus.DECLINED.index);
     }
     return updateData;
+  }
+
+  _updateReadStatus(String notificationId) {
+    Map<String, dynamic> updateData = Map<String, dynamic>();
+    updateData.putIfAbsent('read', () => true);
+    _notificationService.updateNotification(notificationId, updateData);
   }
 }

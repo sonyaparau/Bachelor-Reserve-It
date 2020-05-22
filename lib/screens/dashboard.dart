@@ -36,6 +36,8 @@ class _DashboardPageState extends State<DashboardPage> {
   final LocalService _localService = new LocalService();
   final NotificationService _notificationService = new NotificationService();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  int unreadNotifications = 0;
+  User loggedUser;
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
@@ -64,6 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     initialize();
+    _counterNotifications();
     return Scaffold(
       appBar: buildAppBar(),
       backgroundColor: Colors.white,
@@ -103,7 +106,7 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Colors.deepPurple,
       actions: <Widget>[
         buildIconButtonProfile(),
-        buildIconButtonNotification(),
+        buildStackIconNotification(),
         buildIconButtonLogout()
       ],
     );
@@ -299,15 +302,37 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  /*
-  * @return an IconButton for the notifications
-  * */
-  IconButton buildIconButtonNotification() {
-    return IconButton(
-      icon: Icon(Icons.notifications),
-      onPressed: () {
-        _checkReservations();
-      },
+  Stack buildStackIconNotification() {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Container(
+          child: new IconButton(
+            icon: new Icon(
+              Icons.notifications,
+              size: 35,
+            ),
+            onPressed: () {
+              _checkReservations();
+            },
+          ),
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration:
+                BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+            child: Center(
+              child: Text(
+                unreadNotifications.toString(),
+                style: TextStyle(fontSize: 12, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -325,7 +350,7 @@ class _DashboardPageState extends State<DashboardPage> {
           : Icon(Icons.account_circle),
       onPressed: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ProfileScreen()));
+            .push(MaterialPageRoute(builder: (context) => ProfileScreen(loggedUser)));
       },
     );
   }
@@ -410,6 +435,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   _serializeAndNavigate(Map<String, dynamic> message) {
+     _counterNotifications();
+    print('CALLED');
     final notification = message['notification'];
     final data = message['data'];
     final String title = notification['title'];
@@ -421,29 +448,36 @@ class _DashboardPageState extends State<DashboardPage> {
       notificationReservation.restaurantId = data['restaurantId'];
       notificationReservation.type = NotificationType.REQUEST.index;
       notificationReservation.status = ReservationStatus.PENDING.index;
-      _notificationService.addNewNotificationReservation(notificationReservation);
+      _notificationService
+          .addNewNotificationReservation(notificationReservation);
     }
-    if(title == 'Reservation accepted') {
-      String message = _createMessageAcceptedReservation(data);
+    if (title == 'Reservation accepted') {
+      String message = _createMessageResponseReservation(data);
       model.Notification notificationReservation = model.Notification();
       notificationReservation.message = message;
       notificationReservation.reservationId = data['reservationId'];
       notificationReservation.restaurantId = data['restaurantId'];
       notificationReservation.userId = data['personId'];
+      notificationReservation.localName = data['localName'];
+      notificationReservation.localPicture = data['localPicture'];
       notificationReservation.type = NotificationType.RESPONSE.index;
       notificationReservation.status = ReservationStatus.ACCEPTED.index;
-      _notificationService.addNewNotificationReservation(notificationReservation);
+      _notificationService
+          .addNewNotificationReservation(notificationReservation);
     }
-    if(title == 'Reservation declined') {
-      String message = _createMessageCanceledReservation(data);
+    if (title == 'Reservation declined') {
+      String message = _createMessageResponseReservation(data);
       model.Notification notificationReservation = model.Notification();
       notificationReservation.message = message;
       notificationReservation.reservationId = data['reservationId'];
       notificationReservation.restaurantId = data['restaurantId'];
       notificationReservation.userId = data['personId'];
+      notificationReservation.localName = data['localName'];
+      notificationReservation.localPicture = data['localPicture'];
       notificationReservation.type = NotificationType.RESPONSE.index;
       notificationReservation.status = ReservationStatus.DECLINED.index;
-      _notificationService.addNewNotificationReservation(notificationReservation);
+      _notificationService
+          .addNewNotificationReservation(notificationReservation);
     }
   }
 
@@ -471,19 +505,12 @@ class _DashboardPageState extends State<DashboardPage> {
     return message;
   }
 
-  String _createMessageAcceptedReservation(data) {
+  String _createMessageResponseReservation(data) {
     String message = data['message'];
     message += "\n";
-    message += 'Date: ';
-    message += data['date'];
     message += "\n";
-    message += 'Time: ';
-    message += data['time'];
-    return message;
-  }
-
-  String _createMessageCanceledReservation(data) {
-    String message = data['message'];
+    message += 'Local: ';
+    message += data['localName'];
     message += "\n";
     message += 'Date: ';
     message += data['date'];
@@ -494,7 +521,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   _checkReservations() async {
-    User loggedUser;
     Local local;
     List<model.Notification> notifications = [];
     await _authService.getUser().then((user) => loggedUser = user);
@@ -510,8 +536,7 @@ class _DashboardPageState extends State<DashboardPage> {
       }
       //client notification
       else {
-        if(loggedUser.uid != null) {
-          print('User ID: ' + loggedUser.uid);
+        if (loggedUser.uid != null) {
           await _notificationService
               .findNotificationsForUser(loggedUser.uid)
               .then((notificationList) => notifications = notificationList);
@@ -521,5 +546,45 @@ class _DashboardPageState extends State<DashboardPage> {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) =>
             NotificationsScreen(notifications: notifications)));
+  }
+
+  //TODO REFACTOR
+  _counterNotifications() async {
+    Local local;
+    List<model.Notification> notifications = [];
+    int counter = 0;
+    await _authService.getUser().then((user) => loggedUser = user);
+    if (loggedUser.phone != null) {
+      await _localService
+          .searchLocalByPhoneNumber(loggedUser.phone)
+          .then((restaurant) => local = restaurant);
+      //restaurant owner
+      if (local != null) {
+        await _notificationService
+            .findUnrespondedNotificationsForLocal(local.id)
+            .then((notificationList) => notifications = notificationList);
+      }
+      //client notification
+      else {
+        if (loggedUser.uid != null) {
+          await _notificationService
+              .findNotificationsForUser(loggedUser.uid)
+              .then((notificationList) => notifications = notificationList);
+        }
+      }
+    }
+    notifications.forEach((notification) {
+      //local administrator
+      if (notification.type == 0 && notification.status == 0) {
+        counter++;
+      }
+      //user
+      if (notification.type == 1 && !notification.read) {
+        counter++;
+      }
+    });
+    setState(() {
+      return unreadNotifications = counter;
+    });
   }
 }

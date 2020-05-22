@@ -20,7 +20,9 @@ class ReservationService {
       'person': reservation.user.uid,
       'status': reservation.status.index,
       'device': reservation.deviceToSend,
-      'userDevice': reservation.userDevice
+      'userDevice': reservation.userDevice,
+      'localName' : reservation.local.name,
+      'localPicture' : reservation.local.mainPhoto
     });
   }
 

@@ -12,6 +12,8 @@ class NotificationService {
       'status': notification.status,
       'reservationId': notification.reservationId,
       'userId': notification.userId,
+      'localName': notification.localName,
+      'localPicture': notification.localPicture,
       'read': false,
       'type': notification.type
     });
@@ -33,6 +35,8 @@ class NotificationService {
           Notification notification = new Notification();
           notification.message = data['message'];
           notification.reservationId = data['reservationId'];
+          notification.status = data['status'];
+          notification.read = data['read'];
           notification.id = element.documentID;
           notification.type = data['type'];
           notifications.add(notification);
@@ -51,13 +55,15 @@ class NotificationService {
       Map<String, dynamic> data = element.data;
       if (data.containsKey('status') && data.containsKey('read')) {
         //restaurant new reservation
-        if (data['read'] == false &&
-            (data['status'] == 1 || data['status'] == 2)) {
+        if (data['status'] == 1 || data['status'] == 2) {
           Notification notification = new Notification();
           notification.message = data['message'];
           notification.reservationId = data['reservationId'];
+          notification.localPicture = data['localPicture'];
+          notification.localName = data['localName'];
           notification.id = element.documentID;
           notification.type = data['type'];
+          notification.read = data['read'];
           notification.status = data['status'];
           notifications.add(notification);
         }
@@ -66,7 +72,7 @@ class NotificationService {
     return notifications;
   }
 
-  updateNotificationStatus(String id, Map<String, dynamic> data) {
+  updateNotification(String id, Map<String, dynamic> data) {
     notificationCollection.document(id).updateData(data);
   }
 }
