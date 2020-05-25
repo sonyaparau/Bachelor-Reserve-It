@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/screenUtils/user_choice.dart';
+import 'package:reserve_it_app/screens/update_user_data_dialog.dart';
+import 'package:reserve_it_app/screens/update_user_data_helper.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -55,7 +57,7 @@ class Choice extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle textStyle = Theme.of(context).textTheme.headline4;
     if (userChoice.title == 'Your profile') {
-      return _buildTabUser();
+      return _buildTabUser(context);
     }
     return Card(
       color: Colors.white,
@@ -75,7 +77,7 @@ class Choice extends StatelessWidget {
     );
   }
 
-  Widget _buildTabUser() {
+  Widget _buildTabUser(BuildContext context) {
     return Column(
       children: [
         SizedBox(
@@ -101,7 +103,8 @@ class Choice extends StatelessWidget {
                 size: 30,
               ),
               onPressed: () {
-                //TODO
+                UpdateUserDialogHelper.update(
+                    context, currentUser);
               },
             ),
             _buildTextName(),

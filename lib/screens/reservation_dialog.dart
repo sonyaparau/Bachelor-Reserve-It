@@ -37,7 +37,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
   DateTime _date;
   TimeOfDay _time;
 
-  _ReservationDialogState(this._reservedLocal, this._loggedUser) {}
+  _ReservationDialogState(this._reservedLocal, this._loggedUser);
 
   @override
   Widget build(BuildContext context) {

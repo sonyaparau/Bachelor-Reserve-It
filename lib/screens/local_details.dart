@@ -3,9 +3,11 @@ import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:reserve_it_app/models/local.dart';
+import 'package:reserve_it_app/screens/reservation_dialog_helper.dart';
 import 'package:reserve_it_app/screens/screenUtils/local_details_helper.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:reserve_it_app/services/authentication_service.dart';
 
 /*
 * Contains the details of a selected local.
@@ -40,6 +42,7 @@ class _LocalDetailsState extends State<LocalDetails> {
   Set<Marker> _markers = {};
 
   LocalDetailsHelper _detailsHelper = LocalDetailsHelper();
+  AuthService _authService = AuthService();
 
   CustomWidgets _customWidgets = CustomWidgets();
   Completer<GoogleMapController> _controller = Completer();
@@ -102,7 +105,8 @@ class _LocalDetailsState extends State<LocalDetails> {
           _customWidgets.getHeightSizedBox(25.0),
           buildDetailsCard(context),
           buildLocationCard(context),
-          buildAttractionsCard(context)
+          buildAttractionsCard(context),
+          buildReserveCard(context),
         ],
       ),
     );
@@ -175,6 +179,24 @@ class _LocalDetailsState extends State<LocalDetails> {
                 _detailsHelper.buildRowCity(_local.address.city),
                 _customWidgets.getHeightSizedBox(10.0),
                 buildContainerMap(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget buildReserveCard(BuildContext context) {
+    buildMapCenter();
+    addMarker();
+    return SingleChildScrollView(
+      child: Container(
+        child: Card(
+          child: ListTile(
+            title: Column(
+              children: <Widget>[
               ],
             ),
           ),
@@ -382,15 +404,16 @@ class _LocalDetailsState extends State<LocalDetails> {
   Container buildContainerMap() {
     return Container(
       height: 200,
-      child: GoogleMap(
-        onMapCreated: onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 15.0,
-        ),
-        mapType: MapType.normal,
-        markers: _markers,
-      ),
+//      child:
+//      GoogleMap(
+//        onMapCreated: onMapCreated,
+//        initialCameraPosition: CameraPosition(
+//          target: _center,
+//          zoom: 15.0,
+//        ),
+//        mapType: MapType.normal,
+//        markers: _markers,
+//      ),
     );
   }
 
