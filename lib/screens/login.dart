@@ -360,7 +360,8 @@ class _LoginPageState extends State<LoginPage> {
           uid: value.user.uid,
           email: value.user.email,
           phone: value.user.phoneNumber,
-          photoUrl: value.user.photoUrl);
+          photoUrl: value.user.photoUrl,
+      favouriteLocals: []);
       UserService().addUser(user);
     }).catchError((onError) {
       setLoadingState(false);

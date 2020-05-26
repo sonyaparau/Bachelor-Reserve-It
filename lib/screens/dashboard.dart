@@ -348,11 +348,27 @@ class _DashboardPageState extends State<DashboardPage> {
               backgroundColor: Colors.white,
             )
           : Icon(Icons.account_circle),
-      onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ProfileScreen(loggedUser)));
+      onPressed: () async {
+        List<Local> favouriteLocals = [];
+        await _getFavouriteLocals().then((locals) => favouriteLocals = locals);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ProfileScreen(loggedUser, favouriteLocals)));
       },
     );
+  }
+
+  Future<List<Local>> _getFavouriteLocals() async {
+    List<String> localIds = loggedUser.favouriteLocals;
+    LocalService localService = LocalService();
+    List<Local> locals = [];
+    for (String localId in localIds) {
+      if (localId != null) {
+        await localService
+            .findLocalAfterId(localId)
+            .then((local) => locals.add(local));
+      }
+    }
+    return locals;
   }
 
   /*
@@ -435,7 +451,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   _serializeAndNavigate(Map<String, dynamic> message) {
-     _counterNotifications();
+    _counterNotifications();
     print('CALLED');
     final notification = message['notification'];
     final data = message['data'];

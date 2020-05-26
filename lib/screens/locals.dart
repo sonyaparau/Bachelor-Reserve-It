@@ -12,7 +12,7 @@ import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 * found restaurants.
 * */
 class LocalsScreen extends StatefulWidget {
-  List<Local> foundLocals;
+  final List<Local> foundLocals;
 
   LocalsScreen({Key key, @required this.foundLocals}) : super(key: key);
 

@@ -9,6 +9,7 @@ class User {
   String firstName;
   String lastName;
   String deviceToken;
+  List<String> favouriteLocals;
 
-  User({this.uid, this.email, this.phone, this.photoUrl});
+  User({this.uid, this.email, this.phone, this.photoUrl, this.favouriteLocals});
 }

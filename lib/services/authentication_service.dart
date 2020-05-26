@@ -61,7 +61,8 @@ class AuthService {
             uid: result.user.uid,
             email: result.user.email,
             phone: result.user.phoneNumber,
-            photoUrl: result.user.photoUrl);
+            photoUrl: result.user.photoUrl,
+            favouriteLocals: []);
         userService.addUser(user);
         return true;
       }
@@ -79,7 +80,8 @@ class AuthService {
         uid: result.user.uid,
         email: result.user.email,
         phone: result.user.phoneNumber,
-        photoUrl: result.user.photoUrl);
+        photoUrl: result.user.photoUrl,
+        favouriteLocals: []);
     userService.addUser(user);
   }
 

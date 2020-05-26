@@ -5,8 +5,11 @@ import 'package:latlong/latlong.dart' as ll;
 import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
+import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
+import 'package:reserve_it_app/screens/screenUtils/common_methods.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
+import 'package:reserve_it_app/services/authentication_service.dart';
 
 class Map extends StatefulWidget {
   List<Local> locals;
@@ -178,15 +181,17 @@ class _MapState extends State<Map> {
     return elements;
   }
 
-  Widget getLocalBox(Local restaurant, bool activatedLocation) {
+  Widget getLocalBox(Local restaurant, bool activatedLocation){
     return GestureDetector(
       onTap: () {
         goToLocation(
             restaurant.geoPoint.latitude, restaurant.geoPoint.longitude);
       },
-      onDoubleTap: () {
+      onDoubleTap: () async {
+        bool isFavouriteLocal;
+        await CommonMethods().isFavouriteLocal(restaurant.id).then((favourite) => isFavouriteLocal = favourite);
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => LocalDetails(selectedLocal: restaurant, distance: _km)));
+            builder: (context) => LocalDetails(selectedLocal: restaurant, distance: _km, isFavouriteLocal: isFavouriteLocal)));
       },
       child: new FittedBox(
         child: Material(

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:reserve_it_app/models/current_location.dart';
+import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/user.dart';
+import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:reserve_it_app/screens/screenUtils/user_choice.dart';
-import 'package:reserve_it_app/screens/update_user_data_dialog.dart';
 import 'package:reserve_it_app/screens/update_user_data_helper.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   User currentUser;
+  List<Local> favouriteLocals;
 
-  ProfileScreen(User user) {
+  ProfileScreen(User user, List<Local> favouriteLocals) {
     this.currentUser = user;
+    this.favouriteLocals = favouriteLocals;
   }
 
   @override
@@ -21,6 +26,7 @@ class ProfileScreen extends StatelessWidget {
           backgroundColor: Colors.deepPurple,
           title: Text('Personal information'),
           centerTitle: true,
+          actions: <Widget>[buildIconButtonProfile(context)],
           bottom: TabBar(
             isScrollable: true,
             tabs: UserChoice.userChoice.map<Widget>((UserChoice choice) {
@@ -35,6 +41,7 @@ class ProfileScreen extends StatelessWidget {
               child: Choice(
                 userChoice: userChoice,
                 currentUser: currentUser,
+                favouriteLocals: favouriteLocals,
               ),
             );
           }).toList(),
@@ -42,22 +49,45 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  /*
+  * @return an IconButton for the user's profile
+  * */
+  IconButton buildIconButtonProfile(BuildContext context) {
+    return IconButton(
+      icon: AuthService.urlProfilePhoto != null
+          ? new CircleAvatar(
+              backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
+              radius: 15.0,
+              backgroundColor: Colors.white,
+            )
+          : Icon(Icons.account_circle),
+      onPressed: () async {
+        await AuthService().getUser().then((value) => currentUser = value);
+        UpdateUserDialogHelper.update(context, currentUser);
+      },
+    );
+  }
 }
 
 class Choice extends StatelessWidget {
   final UserChoice userChoice;
   final User currentUser;
+  final List<Local> favouriteLocals;
+  bool _locationEnabled = false;
+  var _userLocation;
 
-  Choice({Key key, this.userChoice, this.currentUser}) {
+  Choice({Key key, this.userChoice, this.currentUser, this.favouriteLocals}) {
 //    super(key: key);
 //    _authService.getUser().then((value) => _currentUser = value);
   }
 
   @override
   Widget build(BuildContext context) {
+    setUserLocation(context);
     final TextStyle textStyle = Theme.of(context).textTheme.headline4;
-    if (userChoice.title == 'Your profile') {
-      return _buildTabUser(context);
+    if (userChoice.title == 'Favourite locals') {
+      return _buildTabFavourites(context);
     }
     return Card(
       color: Colors.white,
@@ -77,115 +107,35 @@ class Choice extends StatelessWidget {
     );
   }
 
-  Widget _buildTabUser(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 15,
-        ),
-        AuthService.urlProfilePhoto != null
-            ? CircleAvatar(
-                backgroundImage: NetworkImage(AuthService.urlProfilePhoto),
-                radius: 60.0,
-                backgroundColor: Colors.white,
-              )
-            : Icon(Icons.account_circle, size: 120, color: Colors.grey),
-        SizedBox(
-          height: 25,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.edit,
-                color: Colors.redAccent,
-                size: 30,
-              ),
-              onPressed: () {
-                UpdateUserDialogHelper.update(
-                    context, currentUser);
-              },
-            ),
-            _buildTextName(),
-          ],
-        ),
-        SizedBox(
-          height: 30,
-        ),
-        _buildRowEmail(),
-        SizedBox(
-          height: 15,
-        ),
-        _buildRowNumber(),
-      ],
+  Widget _buildTabFavourites(BuildContext context) {
+    return Scaffold(
+      body: Center(
+          child: new Container(
+              width: 800,
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(child: buildListViewRestaurants())
+                  ]))),
     );
   }
 
-  Row _buildRowNumber() {
-    List<Widget> rowElements = [];
-    if (currentUser.phone != null) {
-      rowElements = [
-        Icon(
-          Icons.smartphone,
-          color: Colors.redAccent,
-          size: 25,
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Text(currentUser.phone,
-            style: TextStyle(
-                fontSize: 20, color: Colors.grey, fontWeight: FontWeight.bold)),
-      ];
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: rowElements,
-    );
+  ListView buildListViewRestaurants() {
+    return ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          return CustomWidgets().buildLocalCard(
+              context, favouriteLocals[index], _locationEnabled);
+        },
+        itemCount: favouriteLocals.length);
   }
 
-  Row _buildRowEmail() {
-    List<Widget> rowElements = [];
-    if (currentUser.email != null) {
-      rowElements = [
-        Icon(
-          Icons.alternate_email,
-          color: Colors.redAccent,
-          size: 25,
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Text(currentUser.email,
-            style: TextStyle(
-                fontSize: 20, color: Colors.grey, fontWeight: FontWeight.bold)),
-      ];
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: rowElements,
-    );
-  }
-
-  Text _buildTextName() {
-    String name = '';
-    if (currentUser.firstName != null) {
-      name += currentUser.firstName + ' ';
-    }
-    if (currentUser.lastName != null) {
-      name += currentUser.lastName;
-    }
-    if (name.isNotEmpty) {
-      return Text(name,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25));
-    } else {
-      return Text('Complete your name',
-          style: TextStyle(fontSize: 25));
+  void setUserLocation(BuildContext context) {
+    _userLocation = Provider.of<CurrentUserLocation>(context);
+    if (_userLocation != null) {
+      _locationEnabled = true;
     }
   }
-
-  Widget _buildTabFavourites() {}
 
   Widget _buildTabFutureReservations() {}
 

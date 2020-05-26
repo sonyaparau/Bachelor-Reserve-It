@@ -7,6 +7,7 @@ import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
 import 'package:reserve_it_app/screens/reservation_dialog_helper.dart';
+import 'package:reserve_it_app/screens/screenUtils/common_methods.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 
 /*
@@ -130,10 +131,12 @@ class CustomWidgets {
                 )
               ],
             ),
-            onTap: () {
+            onTap: () async{
+              bool isFavouriteLocal;
+              await CommonMethods().isFavouriteLocal(local.id).then((value) => isFavouriteLocal = value);
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) =>
-                      LocalDetails(selectedLocal: local, distance: _km)));
+                      LocalDetails(selectedLocal: local, distance: _km, isFavouriteLocal: isFavouriteLocal)));
             }),
       ),
     ));

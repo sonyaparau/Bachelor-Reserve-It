@@ -3,11 +3,13 @@ import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:reserve_it_app/models/local.dart';
+import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/reservation_dialog_helper.dart';
 import 'package:reserve_it_app/screens/screenUtils/local_details_helper.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:reserve_it_app/services/authentication_service.dart';
+import 'package:reserve_it_app/services/user_service.dart';
 
 /*
 * Contains the details of a selected local.
@@ -16,13 +18,14 @@ class LocalDetails extends StatefulWidget {
   Local selectedLocal;
   double distance;
   bool locationEnabled;
+  bool isFavouriteLocal;
 
-  LocalDetails({Key key, @required this.selectedLocal, @required this.distance})
+  LocalDetails({Key key, @required this.selectedLocal, @required this.distance, @required this.isFavouriteLocal})
       : super(key: key);
 
   @override
   _LocalDetailsState createState() =>
-      _LocalDetailsState(this.selectedLocal, this.distance);
+      _LocalDetailsState(this.selectedLocal, this.distance, this.isFavouriteLocal);
 }
 
 class _LocalDetailsState extends State<LocalDetails> {
@@ -41,13 +44,18 @@ class _LocalDetailsState extends State<LocalDetails> {
   //markers for the selected local
   Set<Marker> _markers = {};
 
+  bool _isFavouriteLocal;
+  Color _color = Colors.white;
+  IconData _icon = Icons.favorite_border;
+
   LocalDetailsHelper _detailsHelper = LocalDetailsHelper();
   AuthService _authService = AuthService();
+  UserService _userService = UserService();
 
   CustomWidgets _customWidgets = CustomWidgets();
   Completer<GoogleMapController> _controller = Completer();
 
-  _LocalDetailsState(this._local, this._distance) {
+  _LocalDetailsState(this._local, this._distance, this._isFavouriteLocal) {
     _local.photoUrls.forEach((element) {
       _images.add(NetworkImage(element));
     });
@@ -187,7 +195,6 @@ class _LocalDetailsState extends State<LocalDetails> {
     );
   }
 
-
   Widget buildReserveCard(BuildContext context) {
     buildMapCenter();
     addMarker();
@@ -197,6 +204,24 @@ class _LocalDetailsState extends State<LocalDetails> {
           child: ListTile(
             title: Column(
               children: <Widget>[
+                ButtonTheme(
+                    minWidth: 450.0,
+                    height: 50.0,
+                    child: RaisedButton(
+                      color: Colors.deepPurple,
+                      textColor: Colors.white,
+                      child: Text(
+                        'Reserve now',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      onPressed: () {
+                        if (_local != null) {
+                          _authService.getUser().then((user) =>
+                              ReservationDialogHelper.reserve(
+                                  context, _local, user));
+                        }
+                      },
+                    ))
               ],
             ),
           ),
@@ -284,17 +309,33 @@ class _LocalDetailsState extends State<LocalDetails> {
   * list.
   * */
   Column buildColumnFavorites() {
+    setFavouriteButtonColors();
     return Column(
       children: [
         Expanded(
           child: Wrap(
             children: [
               IconButton(
-                icon: Icon(Icons.favorite_border,
-                    color: Colors.white, size: 30.0),
+                icon: Icon(_icon,
+                    color: _color, size: 30.0),
                 tooltip: 'Add to favorites',
-                onPressed: () {
-                  //TODO add local to the favourite list
+                onPressed: () async {
+                  User currentUser;
+                  await _authService.getUser().then((value) => currentUser = value);
+                  if(_isFavouriteLocal) {
+                    setState(() {
+                      _isFavouriteLocal = false;
+                      _userService.deleteFavouriteLocalUser(currentUser.uid, _local.id);
+                      setFavouriteButtonColors();
+
+                    });
+                  } else {
+                    setState(() {
+                      _isFavouriteLocal = true;
+                      _userService.addFavouriteLocalToUser(currentUser.uid, _local.id);
+                      setFavouriteButtonColors();
+                    });
+                  }
                 },
               )
             ],
@@ -302,6 +343,16 @@ class _LocalDetailsState extends State<LocalDetails> {
         ),
       ],
     );
+  }
+
+  void setFavouriteButtonColors() {
+    if(_isFavouriteLocal) {
+      _color = Colors.redAccent;
+      _icon = Icons.favorite;
+    } else {
+      _color = Colors.white;
+      _icon = Icons.favorite_border;
+    }
   }
 
   /*

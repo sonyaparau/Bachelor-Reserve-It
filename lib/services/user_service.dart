@@ -20,17 +20,21 @@ class UserService {
   * */
   Future addUser(User user) async {
     bool documentExists;
-    await _checkDocumentExistence(user.uid).then((exists) => documentExists = exists);
+    await _checkDocumentExistence(user.uid)
+        .then((exists) => documentExists = exists);
     String deviceToken;
-    await _notificationService.getDeviceToken().then((token) => deviceToken = token);
-    if(!documentExists) {
+    await _notificationService
+        .getDeviceToken()
+        .then((token) => deviceToken = token);
+    if (!documentExists) {
       return await userCollection.document(user.uid).setData({
         'photoUrl': user.photoUrl,
         'email': user.email,
         'phoneNumber': user.phone,
         'firstName': user.firstName,
         'lastName': user.lastName,
-        'deviceToken': deviceToken
+        'deviceToken': deviceToken,
+        'favouriteLocals': user.favouriteLocals
       });
     }
   }
@@ -46,7 +50,10 @@ class UserService {
 
   Future<bool> _checkDocumentExistence(String id) async {
     bool documentExists = false;
-    await userCollection.document(id).get().then((document) => documentExists = document.exists);
+    await userCollection
+        .document(id)
+        .get()
+        .then((document) => documentExists = document.exists);
     return documentExists;
   }
 
@@ -66,6 +73,9 @@ class UserService {
     if (userInformation.containsKey('lastName')) {
       user.lastName = userInformation['lastName'];
     }
+    if (userInformation.containsKey('favouriteLocals')) {
+      user.favouriteLocals = List.from(userInformation['favouriteLocals']);
+    }
     return user;
   }
 
@@ -73,9 +83,23 @@ class UserService {
     userCollection.document(id).updateData(data);
   }
 
+  addFavouriteLocalToUser(String userId, dynamic local) {
+    userCollection
+        .document(userId)
+        .updateData({"favouriteLocals": FieldValue.arrayUnion([local])});
+  }
+
+  deleteFavouriteLocalUser(String userId, dynamic local) {
+    userCollection
+        .document(userId)
+        .updateData({"favouriteLocals": FieldValue.arrayRemove([local])});
+  }
+
   Future<String> findTokenUser(String phoneNumber) async {
     String deviceToken;
-    QuerySnapshot snapshot = await userCollection.where('phoneNumber', isEqualTo: phoneNumber).getDocuments();
+    QuerySnapshot snapshot = await userCollection
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .getDocuments();
     snapshot.documents.forEach((element) {
       Map<String, dynamic> data = element.data;
       deviceToken = data['deviceToken'];

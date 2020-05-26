@@ -42,6 +42,23 @@ class LocalService {
   }
 
   /*
+  * Search local after id.
+  * */
+  Future<Local> findLocalAfterId(String id) async {
+    Local local;
+    await localCollection
+        .document(id)
+        .get()
+        .then((document) => local = Local.fromJson(document.data));
+    if (local != null) {
+      local.id = id;
+      return local;
+    } else {
+      return null;
+    }
+  }
+
+  /*
   * Filters the locals after the city and attractions. An
   * attraction can be considered also the name of the local,
   * so that the user can search directly a restaurant after
