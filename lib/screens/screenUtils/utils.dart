@@ -6,6 +6,11 @@ import 'package:reserve_it_app/services/authentication_service.dart';
 * one class/screen.
 * */
 class Utils {
+
+  /*
+  * Checks if a local is in the favourite list of locals
+  * of the current logged user and returns true or false.
+  * */
   Future<bool> isFavouriteLocal(String localId) async{
     User currentUser;
     await AuthService().getUser().then((user) => currentUser = user);

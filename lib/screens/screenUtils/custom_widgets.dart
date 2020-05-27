@@ -84,62 +84,92 @@ class CustomWidgets {
                 Image.network(local.mainPhoto, width: 90, fit: BoxFit.fitWidth),
             title: Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        local.name,
-                        style: TextStyle(fontSize: 22),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                  child: Row(children: [
-                    getRatingBar(local.rating, 16.0),
-                    Text(' • ' + local.type,
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 18,
-                            color: Colors.black54)),
-                  ]),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                  child: Row(children: [
-                    getWidgetsForLocation(locationEnabled, _km)[0],
-                    getWidgetsForLocation(locationEnabled, _km)[1],
-                    Spacer(),
-                    RaisedButton(
-                      color: Colors.deepPurple,
-                      textColor: Colors.white,
-                      child: Text(
-                        'Reserve now',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      onPressed: () {
-                        if (local != null) {
-                          _authService.getUser().then((user) =>
-                              ReservationDialogHelper.reserve(
-                                  context, local, user));
-                        }
-                      },
-                    )
-                  ]),
-                )
+                _buildPaddingLocalName(local),
+                _buildPaddingLocalRating(local),
+                _buildPaddingReservationButton(locationEnabled, local, context)
               ],
             ),
-            onTap: () async{
+            onTap: () async {
+              //open details of the selected local
               bool isFavouriteLocal;
-              await Utils().isFavouriteLocal(local.id).then((value) => isFavouriteLocal = value);
+              await Utils()
+                  .isFavouriteLocal(local.id)
+                  .then((value) => isFavouriteLocal = value);
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      LocalDetails(selectedLocal: local, distance: _km, isFavouriteLocal: isFavouriteLocal)));
+                  builder: (context) => LocalDetails(
+                      selectedLocal: local,
+                      distance: _km,
+                      isFavouriteLocal: isFavouriteLocal)));
             }),
       ),
     ));
+  }
+
+  /*
+  * @return a widget containing the reservation button
+  * and the distance between the local and the user's
+  * location
+  * */
+  Padding _buildPaddingReservationButton(
+      bool locationEnabled, Local local, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+      child: Row(children: [
+        getWidgetsForLocation(locationEnabled, _km)[0],
+        getWidgetsForLocation(locationEnabled, _km)[1],
+        Spacer(),
+        RaisedButton(
+          color: Colors.deepPurple,
+          textColor: Colors.white,
+          child: Text(
+            'Reserve now',
+            style: TextStyle(fontSize: 12),
+          ),
+          onPressed: () {
+            if (local != null) {
+              _authService.getUser().then((user) =>
+                  ReservationDialogHelper.reserve(context, local, user));
+            }
+          },
+        )
+      ]),
+    );
+  }
+
+  /*
+  * @return a widget containing the local
+  * rating an the local type
+  * */
+  Padding _buildPaddingLocalRating(Local local) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+      child: Row(children: [
+        getRatingBar(local.rating, 16.0),
+        Text(' • ' + local.type,
+            style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 18,
+                color: Colors.black54)),
+      ]),
+    );
+  }
+
+  /*
+  * @return a widget containing the
+  * name of the local
+  * */
+  Padding _buildPaddingLocalName(Local local) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      child: Row(
+        children: [
+          Text(
+            local.name,
+            style: TextStyle(fontSize: 22),
+          )
+        ],
+      ),
+    );
   }
 
   /*

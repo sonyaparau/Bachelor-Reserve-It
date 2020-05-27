@@ -350,6 +350,9 @@ class _DashboardPageState extends State<DashboardPage> {
         List<Local> favouriteLocals = [];
         List<Reservation> pastReservations = [];
         List<Reservation> futureReservations = [];
+        if(loggedUser != null) {
+          await _authService.getUser().then((value) => loggedUser = value);
+        }
         await _getFavouriteLocals().then((locals) => favouriteLocals = locals);
         await _reservationService
             .getReservationsHistory(loggedUser.uid)

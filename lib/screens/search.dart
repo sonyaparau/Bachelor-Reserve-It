@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 
+/*
+* Search after the name in the list
+* of the found restaurants.
+* */
 class LocalSearch extends SearchDelegate<String> {
   //list with all the names of the found locals
   List<String> _suggestions = [];
@@ -24,6 +28,9 @@ class LocalSearch extends SearchDelegate<String> {
     this._foundLocals = foundLocals;
   }
 
+  /*
+  * AppBar containing the search function.
+  * */
   @override
   ThemeData appBarTheme(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -39,7 +46,7 @@ class LocalSearch extends SearchDelegate<String> {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    // actions for app bar
+    //clear the search data
     return [
       IconButton(
           icon: Icon(Icons.clear),
@@ -60,6 +67,11 @@ class LocalSearch extends SearchDelegate<String> {
         });
   }
 
+  /*
+  * @return the cards of the found locals
+  * If no local is found, a text will be
+  * displayed.
+  * */
   @override
   Widget buildResults(BuildContext context) {
     // show result based on selection
@@ -74,6 +86,10 @@ class LocalSearch extends SearchDelegate<String> {
     }
   }
 
+  /*
+  * @return the suggestions for the
+  * search criteria
+  * */
   @override
   Widget buildSuggestions(BuildContext context) {
     // show when user searches for something
