@@ -99,7 +99,7 @@ class Loading extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildImageLogo(48.0),
-        _customWidgets.getWitdthSizedBox(2.0),
+        _customWidgets.getWidthSizedBox(2.0),
         Text('ReserveIt', style: TextStyle(color: Colors.black54))
       ],
     );

@@ -263,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
           new Row(
             children: <Widget>[
               new Flexible(child: buildDropdownButtonPhoneNr()),
-              _utils.getWitdthSizedBox(5.0),
+              _utils.getWidthSizedBox(5.0),
               new Flexible(
                   child: new TextFormField(
                 keyboardType: TextInputType.phone,

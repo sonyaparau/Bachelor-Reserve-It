@@ -11,5 +11,12 @@ class User {
   String deviceToken;
   List<String> favouriteLocals;
 
-  User({this.uid, this.email, this.phone, this.photoUrl, this.favouriteLocals});
+  User(
+      {this.uid,
+      this.email,
+      this.phone,
+      this.photoUrl,
+      this.favouriteLocals,
+      this.firstName,
+      this.lastName});
 }

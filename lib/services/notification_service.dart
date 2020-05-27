@@ -55,7 +55,7 @@ class NotificationService {
       Map<String, dynamic> data = element.data;
       if (data.containsKey('status') && data.containsKey('read')) {
         //restaurant new reservation
-        if (data['status'] == 1 || data['status'] == 2) {
+        if ((data['status'] == 1 || data['status'] == 2) && data['read'] == false) {
           Notification notification = new Notification();
           notification.message = data['message'];
           notification.reservationId = data['reservationId'];

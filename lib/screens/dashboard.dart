@@ -5,6 +5,7 @@ import 'package:reserve_it_app/enums/notification_type.dart';
 import 'package:reserve_it_app/enums/reservation_status.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/notification.dart' as model;
+import 'package:reserve_it_app/models/reservation.dart';
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/locals.dart';
 import 'package:reserve_it_app/screens/notification_view.dart';
@@ -15,6 +16,7 @@ import 'package:reserve_it_app/services/local_service.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:reserve_it_app/services/notification_service.dart';
 import 'package:reserve_it_app/services/device_service.dart';
+import 'package:reserve_it_app/services/reservation_service.dart';
 
 /*
 * Dashboard Screen where the user can see his
@@ -35,6 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final AuthService _authService = new AuthService();
   final LocalService _localService = new LocalService();
   final NotificationService _notificationService = new NotificationService();
+  final ReservationService _reservationService = new ReservationService();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int unreadNotifications = 0;
   User loggedUser;
@@ -65,7 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    initialize();
+//    initialize();
     _counterNotifications();
     return Scaffold(
       appBar: buildAppBar(),
@@ -125,7 +128,7 @@ class _DashboardPageState extends State<DashboardPage> {
           Text('Discover and book \n       new places',
               style: TextStyle(fontSize: 30.0)),
           _utils.getHeightSizedBox(50.0),
-          _utils.getWitdthSizedBox(5.0),
+          _utils.getWidthSizedBox(5.0),
           buildRowLocation(),
           _utils.getHeightSizedBox(12.0),
           buildRowPreferences(),
@@ -146,7 +149,7 @@ class _DashboardPageState extends State<DashboardPage> {
   * */
   Row buildRowPreferencesInput() {
     return Row(children: <Widget>[
-      _utils.getWitdthSizedBox(35.0),
+      _utils.getWidthSizedBox(35.0),
       Container(
           width: 225,
           child: TextFormField(
@@ -167,7 +170,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   preferenceController.text = '';
                 }
               })),
-      _utils.getWitdthSizedBox(5.0)
+      _utils.getWidthSizedBox(5.0)
     ]);
   }
 
@@ -182,7 +185,7 @@ class _DashboardPageState extends State<DashboardPage> {
         size: 30.0,
         color: Colors.deepPurple,
       ),
-      _utils.getWitdthSizedBox(5.0),
+      _utils.getWidthSizedBox(5.0),
       Text("What do you prefer?", style: TextStyle(fontSize: 20.0))
     ]);
   }
@@ -199,9 +202,9 @@ class _DashboardPageState extends State<DashboardPage> {
         size: 30.0,
         color: Colors.deepPurple,
       ),
-      _utils.getWitdthSizedBox(5.0),
+      _utils.getWidthSizedBox(5.0),
       Text('Location', style: TextStyle(fontSize: 20.0)),
-      _utils.getWitdthSizedBox(15.0),
+      _utils.getWidthSizedBox(15.0),
       buildDropdownButtonLocation()
     ]);
   }
@@ -350,9 +353,17 @@ class _DashboardPageState extends State<DashboardPage> {
           : Icon(Icons.account_circle),
       onPressed: () async {
         List<Local> favouriteLocals = [];
+        List<Reservation> pastReservations = [];
+        List<Reservation> futureReservations = [];
         await _getFavouriteLocals().then((locals) => favouriteLocals = locals);
+        await _reservationService
+            .getReservationsHistory(loggedUser.uid)
+            .then((reservation) => pastReservations = reservation);
+        await _reservationService
+            .getFutureReservations(loggedUser.uid)
+            .then((reservation) => futureReservations = reservation);
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ProfileScreen(loggedUser, favouriteLocals)));
+            builder: (context) => ProfileScreen(loggedUser, favouriteLocals, pastReservations, futureReservations)));
       },
     );
   }
@@ -452,7 +463,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   _serializeAndNavigate(Map<String, dynamic> message) {
     _counterNotifications();
-    print('CALLED');
     final notification = message['notification'];
     final data = message['data'];
     final String title = notification['title'];

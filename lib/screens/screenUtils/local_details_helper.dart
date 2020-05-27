@@ -41,7 +41,7 @@ class LocalDetailsHelper {
         Text(street,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15.0, color: Colors.grey)),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         Icon(Icons.location_on, color: Colors.redAccent),
         Text(
           _createDistanceText(city, distance),
@@ -65,7 +65,7 @@ class LocalDetailsHelper {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.scatter_plot, color: Colors.redAccent),
-        _customWidgets.getWitdthSizedBox(2.0),
+        _customWidgets.getWidthSizedBox(2.0),
         Text(
           description,
           textAlign: TextAlign.center,
@@ -85,11 +85,11 @@ class LocalDetailsHelper {
   Row buildRowPhone(String phoneNumber) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Icon(Icons.phone, color: Colors.red, size: 20.0),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails('Phone', FontWeight.bold, Colors.black87),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         GestureDetector(
           onTap: () {
             if (!kIsWeb) _launchPhoneNumber(phoneNumber);
@@ -110,11 +110,11 @@ class LocalDetailsHelper {
   Row buildRowWebsite(String website) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Icon(Icons.link, color: Colors.red, size: 20.0),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails('Website', FontWeight.bold, Colors.black87),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         GestureDetector(
           onTap: () {
             _launchUrl(website);
@@ -131,11 +131,11 @@ class LocalDetailsHelper {
   Row buildRowEmail(String email) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Icon(Icons.email, color: Colors.red, size: 20.0),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails('Email', FontWeight.bold, Colors.black87),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails(email, FontWeight.normal, Colors.black87),
       ],
     );
@@ -156,7 +156,7 @@ class LocalDetailsHelper {
           backgroundColor: Colors.deepPurple,
           padding: EdgeInsets.all(3.0),
         ));
-        chips.add(_customWidgets.getWitdthSizedBox(5.0));
+        chips.add(_customWidgets.getWidthSizedBox(5.0));
       }
     }
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: chips);
@@ -170,7 +170,7 @@ class LocalDetailsHelper {
     return Row(
       children: [
         Icon(icon, size: 15.0, color: Colors.deepPurple),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         Text(
           text,
           textAlign: TextAlign.center,
@@ -187,11 +187,11 @@ class LocalDetailsHelper {
   Row buildRow(IconData icon, String key, String value) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Icon(icon, color: Colors.red, size: 20.0),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails(key, FontWeight.bold, Colors.black87),
-        _customWidgets.getWitdthSizedBox(5.0),
+        _customWidgets.getWidthSizedBox(5.0),
         buildTextDetails(value, FontWeight.normal, Colors.black87)
       ],
     );
@@ -217,7 +217,7 @@ class LocalDetailsHelper {
   Row buildRowCity(String city) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Text(
           city,
           style: TextStyle(
@@ -233,7 +233,7 @@ class LocalDetailsHelper {
   Row buildRowStreet(String street) {
     return Row(
       children: [
-        _customWidgets.getWitdthSizedBox(20.0),
+        _customWidgets.getWidthSizedBox(20.0),
         Text(
           street,
           style: TextStyle(

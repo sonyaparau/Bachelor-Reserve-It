@@ -31,7 +31,7 @@ class CustomWidgets {
   * Returns a sized box for the width
   * between two objects.
   * */
-  Widget getWitdthSizedBox(width) {
+  Widget getWidthSizedBox(width) {
     return SizedBox(width: width);
   }
 
@@ -48,7 +48,7 @@ class CustomWidgets {
             children: <Widget>[
               Image.asset('assets/app_logo.png',
                   fit: BoxFit.contain, height: 32),
-              getWitdthSizedBox(2.0),
+              getWidthSizedBox(2.0),
               new Text(title)
             ],
           ),

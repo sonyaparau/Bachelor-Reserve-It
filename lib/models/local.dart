@@ -26,6 +26,8 @@ class Local {
   //local's location on the map
   GeoPoint geoPoint;
 
+  Local({this.mainPhoto, this.name});
+
   //converts a JSON-Object from the document to a local entity
   Local.fromJson(Map<String, dynamic> data) {
     address = Address.fromJson(data['address']);

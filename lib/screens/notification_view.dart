@@ -196,7 +196,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _getNotificationTitle(int index) {
+  _getNotificationTitle(int index) {
     bool notificationRead = notifications[index].read;
     if (notifications[index].type == 0) {
       return Text(

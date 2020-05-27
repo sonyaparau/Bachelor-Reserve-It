@@ -351,7 +351,8 @@ class _ReservationDialogState extends State<ReservationDialog> {
         numberPeople: int.parse(_numberPeople),
         deviceToSend: deviceToken,
         userDevice: userDevice);
-    ReservationService().addReservation(reservation);
+    DateTime dateTime = DateTime(_date.year, _date.month, _date.day,_time.hour, _time.minute);
+    ReservationService().addReservation(reservation, dateTime);
   }
 
   _updateInformationUser() async {

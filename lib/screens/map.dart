@@ -172,7 +172,7 @@ class _MapState extends State<Map> {
   List<Widget> getElements(bool activatedLocation) {
     List<Widget> elements = [];
     locals.forEach((element) {
-      elements.add(_customWidgets.getWitdthSizedBox(10.0));
+      elements.add(_customWidgets.getWidthSizedBox(10.0));
       elements.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: getLocalBox(element, activatedLocation),
@@ -260,7 +260,7 @@ class _MapState extends State<Map> {
                 fontSize: 18.0,
               ),
             )),
-            _customWidgets.getWitdthSizedBox(20.0),
+            _customWidgets.getWidthSizedBox(20.0),
           ],
         )),
         _customWidgets.getHeightSizedBox(10.0),

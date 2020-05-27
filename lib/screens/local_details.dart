@@ -369,9 +369,9 @@ class _LocalDetailsState extends State<LocalDetails> {
               _customWidgets.getHeightSizedBox(245.0),
               Row(
                 children: [
-                  _customWidgets.getWitdthSizedBox(10.0),
+                  _customWidgets.getWidthSizedBox(10.0),
                   _customWidgets.getRatingBar(_local.rating, 20.0),
-                  _customWidgets.getWitdthSizedBox(2.0),
+                  _customWidgets.getWidthSizedBox(2.0),
                   Text(
                     _local.rating.toString(),
                     style: TextStyle(
