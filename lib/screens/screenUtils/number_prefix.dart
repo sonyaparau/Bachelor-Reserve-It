@@ -1,3 +1,8 @@
+/*
+* Class which contains the prefixes
+* of more countries for the phone
+* number.
+* */
 class NumberPrefix {
   String flag;
   String name;

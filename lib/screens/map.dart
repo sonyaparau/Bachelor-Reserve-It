@@ -7,7 +7,7 @@ import 'package:reserve_it_app/models/current_location.dart';
 import 'package:reserve_it_app/models/local.dart';
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/screens/local_details.dart';
-import 'package:reserve_it_app/screens/screenUtils/common_methods.dart';
+import 'package:reserve_it_app/screens/screenUtils/utils.dart';
 import 'package:reserve_it_app/screens/screenUtils/custom_widgets.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 
@@ -189,7 +189,7 @@ class _MapState extends State<Map> {
       },
       onDoubleTap: () async {
         bool isFavouriteLocal;
-        await CommonMethods().isFavouriteLocal(restaurant.id).then((favourite) => isFavouriteLocal = favourite);
+        await Utils().isFavouriteLocal(restaurant.id).then((favourite) => isFavouriteLocal = favourite);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => LocalDetails(selectedLocal: restaurant, distance: _km, isFavouriteLocal: isFavouriteLocal)));
       },

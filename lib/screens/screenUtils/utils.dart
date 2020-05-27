@@ -1,7 +1,11 @@
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 
-class CommonMethods {
+/*
+* Contains methods which are called in more than
+* one class/screen.
+* */
+class Utils {
   Future<bool> isFavouriteLocal(String localId) async{
     User currentUser;
     await AuthService().getUser().then((user) => currentUser = user);

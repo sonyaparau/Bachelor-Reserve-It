@@ -71,12 +71,13 @@ class _DashboardPageState extends State<DashboardPage> {
 //    initialize();
     _counterNotifications();
     return Scaffold(
+
       appBar: buildAppBar(),
       backgroundColor: Colors.white,
       resizeToAvoidBottomPadding: true,
       body: new Center(
         child: new Container(
-          width: !kIsWeb ? 350 : 370,
+          width: !kIsWeb ? 400 : 400,
           padding: new EdgeInsets.all(25.0),
           child: SingleChildScrollView(
             child: buildFormSearch(context),
@@ -124,9 +125,8 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Discover and book \n       new places',
-              style: TextStyle(fontSize: 30.0)),
+        children: <Widget>[ Text('Discover and book \n       new places',
+                  style: TextStyle(fontSize: 30.0, color: Colors.black)),
           _utils.getHeightSizedBox(50.0),
           _utils.getWidthSizedBox(5.0),
           buildRowLocation(),
@@ -185,7 +185,7 @@ class _DashboardPageState extends State<DashboardPage> {
         size: 30.0,
         color: Colors.deepPurple,
       ),
-      _utils.getWidthSizedBox(5.0),
+      _utils.getWidthSizedBox(10.0),
       Text("What do you prefer?", style: TextStyle(fontSize: 20.0))
     ]);
   }
@@ -212,30 +212,25 @@ class _DashboardPageState extends State<DashboardPage> {
   /*
   * @return the button for the search
   * */
-  OutlineButton buildOutlineButtonSearch(BuildContext context) {
-    return OutlineButton(
-      onPressed: () {
-        setState(() {
+  Widget buildOutlineButtonSearch(BuildContext context) {
+    return ButtonTheme(
+        minWidth: 450.0,
+        height: 50.0,
+        child: RaisedButton(
+          color: Colors.deepPurple,
+          textColor: Colors.white,
+          child: Text(
+            'Let\'s go',
+            style: TextStyle(fontSize: 18),
+          ),
+          onPressed: () {
+            setState(() {
           _preferences.isEmpty
               ? searchAfterLocation(context)
               : searchAfterLocationAndPreferences(context);
         });
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0)),
-      borderSide: BorderSide(color: Colors.grey),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Let\'s go',
-              style: TextStyle(fontSize: 20, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
+          },
+        ));
   }
 
   /*
@@ -363,7 +358,8 @@ class _DashboardPageState extends State<DashboardPage> {
             .getFutureReservations(loggedUser.uid)
             .then((reservation) => futureReservations = reservation);
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ProfileScreen(loggedUser, favouriteLocals, pastReservations, futureReservations)));
+            builder: (context) => ProfileScreen(loggedUser, favouriteLocals,
+                pastReservations, futureReservations)));
       },
     );
   }

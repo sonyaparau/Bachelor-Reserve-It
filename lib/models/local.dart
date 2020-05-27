@@ -15,13 +15,14 @@ class Local {
   bool petRestriction;
   String phoneNumber;
   String mainPhoto;
-
   //list with the photo's of a local
   List<String> photoUrls;
   bool smokingRestriction;
   String type;
   String website;
   double rating;
+  //each element of the list contains a day or a period
+  List<String> timetable;
 
   //local's location on the map
   GeoPoint geoPoint;
@@ -45,5 +46,6 @@ class Local {
     website = data['website'];
     rating = data['rating'];
     geoPoint = data['geographical_point'];
+    timetable = List.from(data['timetable']);
   }
 }

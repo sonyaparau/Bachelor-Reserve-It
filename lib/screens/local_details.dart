@@ -113,6 +113,7 @@ class _LocalDetailsState extends State<LocalDetails> {
           _customWidgets.getHeightSizedBox(25.0),
           buildDetailsCard(context),
           buildLocationCard(context),
+          buildTimetableCard(context),
           buildAttractionsCard(context),
           buildReserveCard(context),
         ],
@@ -156,6 +157,33 @@ class _LocalDetailsState extends State<LocalDetails> {
                 buildRowPets(),
                 _customWidgets.getHeightSizedBox(5.0),
                 buildRowSmoking(),
+                _customWidgets.getHeightSizedBox(10.0),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /*
+  * Adds a card containing all the details of the
+  * restaurant: payment methods, phone number,
+  * website, pet restrictions, smoking restriction,
+  * email.
+  * */
+  Widget buildTimetableCard(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        child: Card(
+          child: ListTile(
+            title: Column(
+              children: <Widget>[
+                _customWidgets.getHeightSizedBox(10.0),
+                _detailsHelper.buildRowCardTitle(
+                    Icons.calendar_today, 'Timetable'),
+                _customWidgets.getHeightSizedBox(10.0),
+                buildRowDay(),
                 _customWidgets.getHeightSizedBox(10.0),
               ],
             ),
@@ -398,6 +426,19 @@ class _LocalDetailsState extends State<LocalDetails> {
         paymentText.substring(0, paymentText.length - 2));
   }
 
+  Row buildRowDay() {
+    String timetable = '';
+    for(String day in _local.timetable){
+      timetable += day + "\n";
+    }
+    return Row(
+      children: [
+        _customWidgets.getWidthSizedBox(20.0),
+        Text(timetable, style: TextStyle(color: Colors.black87))
+      ],
+    );
+  }
+
   /*
   * @return the row with the smoking details
   * */
@@ -455,16 +496,16 @@ class _LocalDetailsState extends State<LocalDetails> {
   Container buildContainerMap() {
     return Container(
       height: 200,
-//      child:
-//      GoogleMap(
-//        onMapCreated: onMapCreated,
-//        initialCameraPosition: CameraPosition(
-//          target: _center,
-//          zoom: 15.0,
-//        ),
-//        mapType: MapType.normal,
-//        markers: _markers,
-//      ),
+      child:
+      GoogleMap(
+        onMapCreated: onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: _center,
+          zoom: 15.0,
+        ),
+        mapType: MapType.normal,
+        markers: _markers,
+      ),
     );
   }
 

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+/*
+* Choices for the user profile which
+* contains more tabs.
+* */
 class UserChoice {
   final String title;
   final IconData icon;
