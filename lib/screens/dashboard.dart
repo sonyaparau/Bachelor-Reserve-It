@@ -63,15 +63,14 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     DeviceService().getDeviceToken();
-//    initialize();
+    initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    initialize();
+//    initialize();
     _counterNotifications();
     return Scaffold(
-
       appBar: buildAppBar(),
       backgroundColor: Colors.white,
       resizeToAvoidBottomPadding: true,
@@ -125,8 +124,9 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[ Text('Discover and book \n       new places',
-                  style: TextStyle(fontSize: 30.0, color: Colors.black)),
+        children: <Widget>[
+          Text('Discover and book \n       new places',
+              style: TextStyle(fontSize: 30.0, color: Colors.black)),
           _utils.getHeightSizedBox(50.0),
           _utils.getWidthSizedBox(5.0),
           buildRowLocation(),
@@ -225,10 +225,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           onPressed: () {
             setState(() {
-          _preferences.isEmpty
-              ? searchAfterLocation(context)
-              : searchAfterLocationAndPreferences(context);
-        });
+              _preferences.isEmpty
+                  ? searchAfterLocation(context)
+                  : searchAfterLocationAndPreferences(context);
+            });
           },
         ));
   }
@@ -315,22 +315,25 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           ),
         ),
-        Align(
-          alignment: Alignment.topRight,
-          child: Container(
-            width: 20,
-            height: 20,
-            decoration:
-                BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-            child: Center(
-              child: Text(
-                unreadNotifications.toString(),
-                style: TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ),
+        _buildAlignNumberUnreadNotifications(),
+      ],
+    );
+  }
+
+  Align _buildAlignNumberUnreadNotifications() {
+    return Align(
+      alignment: Alignment.topRight,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+        child: Center(
+          child: Text(
+            unreadNotifications.toString(),
+            style: TextStyle(fontSize: 12, color: Colors.white),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -350,7 +353,7 @@ class _DashboardPageState extends State<DashboardPage> {
         List<Local> favouriteLocals = [];
         List<Reservation> pastReservations = [];
         List<Reservation> futureReservations = [];
-        if(_loggedUser != null) {
+        if (_loggedUser != null) {
           await _authService.getUser().then((value) => _loggedUser = value);
         }
         await _getFavouriteLocals().then((locals) => favouriteLocals = locals);
@@ -446,6 +449,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /*
+  * Configuration for Firebase Messaging.
+  * A message will e read and saved automatically
+  * in the database.
+  * */
   Future initialize() async {
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
@@ -467,43 +475,60 @@ class _DashboardPageState extends State<DashboardPage> {
     final String title = notification['title'];
     if (title == 'New reservation') {
       String message = _createMessageNewReservation(data);
-      model.Notification notificationReservation = model.Notification();
-      notificationReservation.message = message;
-      notificationReservation.reservationId = data['reservationId'];
-      notificationReservation.restaurantId = data['restaurantId'];
-      notificationReservation.type = NotificationType.REQUEST.index;
-      notificationReservation.status = ReservationStatus.PENDING.index;
-      _notificationService
-          .addNotification(notificationReservation);
+      model.Notification notificationReservation =
+          _createNotificationNewReservation(message, data);
+      _notificationService.addNotification(notificationReservation);
     }
     if (title == 'Reservation accepted') {
       String message = _createMessageResponseReservation(data);
-      model.Notification notificationReservation = model.Notification();
-      notificationReservation.message = message;
-      notificationReservation.reservationId = data['reservationId'];
-      notificationReservation.restaurantId = data['restaurantId'];
-      notificationReservation.userId = data['personId'];
-      notificationReservation.localName = data['localName'];
-      notificationReservation.localPicture = data['localPicture'];
-      notificationReservation.type = NotificationType.RESPONSE.index;
-      notificationReservation.status = ReservationStatus.ACCEPTED.index;
-      _notificationService
-          .addNotification(notificationReservation);
+      model.Notification notificationReservation =
+          _createNotificationReservationAcccepted(message, data);
+      _notificationService.addNotification(notificationReservation);
     }
     if (title == 'Reservation declined') {
       String message = _createMessageResponseReservation(data);
-      model.Notification notificationReservation = model.Notification();
-      notificationReservation.message = message;
-      notificationReservation.reservationId = data['reservationId'];
-      notificationReservation.restaurantId = data['restaurantId'];
-      notificationReservation.userId = data['personId'];
-      notificationReservation.localName = data['localName'];
-      notificationReservation.localPicture = data['localPicture'];
-      notificationReservation.type = NotificationType.RESPONSE.index;
-      notificationReservation.status = ReservationStatus.DECLINED.index;
-      _notificationService
-          .addNotification(notificationReservation);
+      model.Notification notificationReservation =
+          _createNotificationReservationDeclined(message, data);
+      _notificationService.addNotification(notificationReservation);
     }
+  }
+
+  model.Notification _createNotificationNewReservation(String message, data) {
+    model.Notification notificationReservation = model.Notification();
+    notificationReservation.message = message;
+    notificationReservation.reservationId = data['reservationId'];
+    notificationReservation.restaurantId = data['restaurantId'];
+    notificationReservation.type = NotificationType.REQUEST.index;
+    notificationReservation.status = ReservationStatus.PENDING.index;
+    return notificationReservation;
+  }
+
+  model.Notification _createNotificationReservationAcccepted(
+      String message, data) {
+    model.Notification notificationReservation = model.Notification();
+    notificationReservation.message = message;
+    notificationReservation.reservationId = data['reservationId'];
+    notificationReservation.restaurantId = data['restaurantId'];
+    notificationReservation.userId = data['personId'];
+    notificationReservation.localName = data['localName'];
+    notificationReservation.localPicture = data['localPicture'];
+    notificationReservation.type = NotificationType.RESPONSE.index;
+    notificationReservation.status = ReservationStatus.ACCEPTED.index;
+    return notificationReservation;
+  }
+
+  model.Notification _createNotificationReservationDeclined(
+      String message, data) {
+    model.Notification notificationReservation = model.Notification();
+    notificationReservation.message = message;
+    notificationReservation.reservationId = data['reservationId'];
+    notificationReservation.restaurantId = data['restaurantId'];
+    notificationReservation.userId = data['personId'];
+    notificationReservation.localName = data['localName'];
+    notificationReservation.localPicture = data['localPicture'];
+    notificationReservation.type = NotificationType.RESPONSE.index;
+    notificationReservation.status = ReservationStatus.DECLINED.index;
+    return notificationReservation;
   }
 
   String _createMessageNewReservation(data) {

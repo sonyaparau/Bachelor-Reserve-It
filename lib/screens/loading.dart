@@ -24,7 +24,12 @@ class Loading extends StatelessWidget {
               _customWidgets.getHeightSizedBox(25.0),
               buildTextLoading(),
               _customWidgets.getHeightSizedBox(140.0),
-              buildPhoto(),
+              Expanded(
+                child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child:  buildPhoto(),
+                ),
+              )
             ],
           ),
         ),
