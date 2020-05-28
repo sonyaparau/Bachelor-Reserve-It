@@ -155,7 +155,7 @@ class Choice extends StatelessWidget {
   * corresponding text and icon is being displayed.
   * */
   Widget _buildScreenPastReservations(TextStyle textStyle) {
-    if (futureReservations.isNotEmpty) {
+    if (pastReservations.isNotEmpty) {
       return _buildTabReservation(pastReservations);
     } else {
       String title = 'No past reservations';

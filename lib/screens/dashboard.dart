@@ -40,7 +40,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final ReservationService _reservationService = new ReservationService();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int unreadNotifications = 0;
-  User loggedUser;
+  User _loggedUser;
 
   List<String> _preferences = [];
   List<dynamic> _foundLocals;
@@ -350,25 +350,25 @@ class _DashboardPageState extends State<DashboardPage> {
         List<Local> favouriteLocals = [];
         List<Reservation> pastReservations = [];
         List<Reservation> futureReservations = [];
-        if(loggedUser != null) {
-          await _authService.getUser().then((value) => loggedUser = value);
+        if(_loggedUser != null) {
+          await _authService.getUser().then((value) => _loggedUser = value);
         }
         await _getFavouriteLocals().then((locals) => favouriteLocals = locals);
         await _reservationService
-            .getReservationsHistory(loggedUser.uid)
+            .getReservationsHistory(_loggedUser.uid)
             .then((reservation) => pastReservations = reservation);
         await _reservationService
-            .getFutureReservations(loggedUser.uid)
+            .getFutureReservations(_loggedUser.uid)
             .then((reservation) => futureReservations = reservation);
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ProfileScreen(loggedUser, favouriteLocals,
+            builder: (context) => ProfileScreen(_loggedUser, favouriteLocals,
                 pastReservations, futureReservations)));
       },
     );
   }
 
   Future<List<Local>> _getFavouriteLocals() async {
-    List<String> localIds = loggedUser.favouriteLocals;
+    List<String> localIds = _loggedUser.favouriteLocals;
     LocalService localService = LocalService();
     List<Local> locals = [];
     for (String localId in localIds) {
@@ -548,10 +548,10 @@ class _DashboardPageState extends State<DashboardPage> {
   _checkReservations() async {
     Local local;
     List<model.Notification> notifications = [];
-    await _authService.getUser().then((user) => loggedUser = user);
-    if (loggedUser.phone != null) {
+    await _authService.getUser().then((user) => _loggedUser = user);
+    if (_loggedUser.phone != null) {
       await _localService
-          .searchLocalByPhoneNumber(loggedUser.phone)
+          .searchLocalByPhoneNumber(_loggedUser.phone)
           .then((restaurant) => local = restaurant);
       //restaurant owner
       if (local != null) {
@@ -561,9 +561,9 @@ class _DashboardPageState extends State<DashboardPage> {
       }
       //client notification
       else {
-        if (loggedUser.uid != null) {
+        if (_loggedUser.uid != null) {
           await _notificationService
-              .findNotificationsForUser(loggedUser.uid)
+              .findNotificationsForUser(_loggedUser.uid)
               .then((notificationList) => notifications = notificationList);
         }
       }
@@ -578,10 +578,10 @@ class _DashboardPageState extends State<DashboardPage> {
     Local local;
     List<model.Notification> notifications = [];
     int counter = 0;
-    await _authService.getUser().then((user) => loggedUser = user);
-    if (loggedUser.phone != null) {
+    await _authService.getUser().then((user) => _loggedUser = user);
+    if (_loggedUser.phone != null) {
       await _localService
-          .searchLocalByPhoneNumber(loggedUser.phone)
+          .searchLocalByPhoneNumber(_loggedUser.phone)
           .then((restaurant) => local = restaurant);
       //restaurant owner
       if (local != null) {
@@ -591,9 +591,9 @@ class _DashboardPageState extends State<DashboardPage> {
       }
       //client notification
       else {
-        if (loggedUser.uid != null) {
+        if (_loggedUser.uid != null) {
           await _notificationService
-              .findNotificationsForUser(loggedUser.uid)
+              .findNotificationsForUser(_loggedUser.uid)
               .then((notificationList) => notifications = notificationList);
         }
       }

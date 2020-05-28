@@ -12,7 +12,7 @@ import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:reserve_it_app/services/user_service.dart';
 
 /*
-* Contains the details of a selected local.
+* Contains the details screen of a selected local.
 * */
 class LocalDetails extends StatefulWidget {
   Local selectedLocal;
@@ -20,12 +20,16 @@ class LocalDetails extends StatefulWidget {
   bool locationEnabled;
   bool isFavouriteLocal;
 
-  LocalDetails({Key key, @required this.selectedLocal, @required this.distance, @required this.isFavouriteLocal})
+  LocalDetails(
+      {Key key,
+      @required this.selectedLocal,
+      @required this.distance,
+      @required this.isFavouriteLocal})
       : super(key: key);
 
   @override
-  _LocalDetailsState createState() =>
-      _LocalDetailsState(this.selectedLocal, this.distance, this.isFavouriteLocal);
+  _LocalDetailsState createState() => _LocalDetailsState(
+      this.selectedLocal, this.distance, this.isFavouriteLocal);
 }
 
 class _LocalDetailsState extends State<LocalDetails> {
@@ -51,7 +55,6 @@ class _LocalDetailsState extends State<LocalDetails> {
   LocalDetailsHelper _detailsHelper = LocalDetailsHelper();
   AuthService _authService = AuthService();
   UserService _userService = UserService();
-
   CustomWidgets _customWidgets = CustomWidgets();
   Completer<GoogleMapController> _controller = Completer();
 
@@ -183,7 +186,7 @@ class _LocalDetailsState extends State<LocalDetails> {
                 _detailsHelper.buildRowCardTitle(
                     Icons.calendar_today, 'Timetable'),
                 _customWidgets.getHeightSizedBox(10.0),
-                buildRowDay(),
+                buildRowTimetable(),
                 _customWidgets.getHeightSizedBox(10.0),
               ],
             ),
@@ -223,6 +226,9 @@ class _LocalDetailsState extends State<LocalDetails> {
     );
   }
 
+  /*
+  * Builds a card containing the reservation button.
+  * */
   Widget buildReserveCard(BuildContext context) {
     buildMapCenter();
     addMarker();
@@ -231,31 +237,37 @@ class _LocalDetailsState extends State<LocalDetails> {
         child: Card(
           child: ListTile(
             title: Column(
-              children: <Widget>[
-                ButtonTheme(
-                    minWidth: 450.0,
-                    height: 50.0,
-                    child: RaisedButton(
-                      color: Colors.deepPurple,
-                      textColor: Colors.white,
-                      child: Text(
-                        'Reserve now',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      onPressed: () {
-                        if (_local != null) {
-                          _authService.getUser().then((user) =>
-                              ReservationDialogHelper.reserve(
-                                  context, _local, user));
-                        }
-                      },
-                    ))
-              ],
+              children: <Widget>[_buildButtonReservation(context)],
             ),
           ),
         ),
       ),
     );
+  }
+
+  /*
+  * Returns the button for making a reservation. On tap,
+  * the reservation dialog will be displayed and a
+  * reservation to the selected local can be made.
+  * */
+  ButtonTheme _buildButtonReservation(BuildContext context) {
+    return ButtonTheme(
+        minWidth: 450.0,
+        height: 50.0,
+        child: RaisedButton(
+          color: Colors.deepPurple,
+          textColor: Colors.white,
+          child: Text(
+            'Reserve now',
+            style: TextStyle(fontSize: 18),
+          ),
+          onPressed: () {
+            if (_local != null) {
+              _authService.getUser().then((user) =>
+                  ReservationDialogHelper.reserve(context, _local, user));
+            }
+          },
+        ));
   }
 
   /*
@@ -344,23 +356,25 @@ class _LocalDetailsState extends State<LocalDetails> {
           child: Wrap(
             children: [
               IconButton(
-                icon: Icon(_icon,
-                    color: _color, size: 30.0),
+                icon: Icon(_icon, color: _color, size: 30.0),
                 tooltip: 'Add to favorites',
                 onPressed: () async {
                   User currentUser;
-                  await _authService.getUser().then((value) => currentUser = value);
-                  if(_isFavouriteLocal) {
+                  await _authService
+                      .getUser()
+                      .then((value) => currentUser = value);
+                  if (_isFavouriteLocal) {
                     setState(() {
                       _isFavouriteLocal = false;
-                      _userService.deleteFavouriteLocalUser(currentUser.uid, _local.id);
+                      _userService.deleteFavouriteLocalUser(
+                          currentUser.uid, _local.id);
                       setFavouriteButtonColors();
-
                     });
                   } else {
                     setState(() {
                       _isFavouriteLocal = true;
-                      _userService.addFavouriteLocalToUser(currentUser.uid, _local.id);
+                      _userService.addFavouriteLocalToUser(
+                          currentUser.uid, _local.id);
                       setFavouriteButtonColors();
                     });
                   }
@@ -373,8 +387,15 @@ class _LocalDetailsState extends State<LocalDetails> {
     );
   }
 
+  /*
+  * Sets the favourite button colors
+  * depending on the user's preference.
+  * If the local is not on the favourite
+  * list, a white heart will be displayed.
+  * Otherwise, the heart will be red.
+  * */
   void setFavouriteButtonColors() {
-    if(_isFavouriteLocal) {
+    if (_isFavouriteLocal) {
       _color = Colors.redAccent;
       _icon = Icons.favorite;
     } else {
@@ -426,9 +447,14 @@ class _LocalDetailsState extends State<LocalDetails> {
         paymentText.substring(0, paymentText.length - 2));
   }
 
-  Row buildRowDay() {
+  /*
+  * Returns a row containing the timetable
+  * of the local.
+  * */
+  Row buildRowTimetable() {
     String timetable = '';
-    for(String day in _local.timetable){
+    //each day will be displayed on a new line
+    for (String day in _local.timetable) {
       timetable += day + "\n";
     }
     return Row(
@@ -496,8 +522,7 @@ class _LocalDetailsState extends State<LocalDetails> {
   Container buildContainerMap() {
     return Container(
       height: 200,
-      child:
-      GoogleMap(
+      child: GoogleMap(
         onMapCreated: onMapCreated,
         initialCameraPosition: CameraPosition(
           target: _center,
