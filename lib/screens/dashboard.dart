@@ -68,7 +68,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-//    initialize();
     _counterNotifications();
     return Scaffold(
       appBar: buildAppBar(),
@@ -300,6 +299,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /*
+  * Build the icon button for the notification.
+  * When pressed, a new screen with the notifications
+  * will be displayed.
+  * */
   Stack buildStackIconNotification() {
     return Stack(
       alignment: Alignment.topCenter,
@@ -320,6 +324,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /*
+  * Return a circle with the number of unread
+  * notifications which will be displayed above the
+  * notification button.
+  * */
   Align _buildAlignNumberUnreadNotifications() {
     return Align(
       alignment: Alignment.topRight,
@@ -338,7 +347,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   /*
-  * @return an IconButton for the user's profile
+  * @return an IconButton for the user's profile.
+  * On pressed, the TabBar Screen with the user's
+  * data, favourite locals, past and future reservations
+  * will be displayed.
   * */
   IconButton buildIconButtonProfile() {
     return IconButton(
@@ -363,6 +375,7 @@ class _DashboardPageState extends State<DashboardPage> {
         await _reservationService
             .getFutureReservations(_loggedUser.uid)
             .then((reservation) => futureReservations = reservation);
+        //open the Profile Screen for the user
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => ProfileScreen(_loggedUser, favouriteLocals,
                 pastReservations, futureReservations)));
@@ -370,18 +383,25 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /*
+  * @return a list with the favourite locals of
+  * the user
+  * */
   Future<List<Local>> _getFavouriteLocals() async {
-    List<String> localIds = _loggedUser.favouriteLocals;
-    LocalService localService = LocalService();
-    List<Local> locals = [];
-    for (String localId in localIds) {
-      if (localId != null) {
-        await localService
-            .findLocalAfterId(localId)
-            .then((local) => locals.add(local));
+    if(_loggedUser != null) {
+      List<String> localIds = _loggedUser.favouriteLocals;
+      LocalService localService = LocalService();
+      List<Local> locals = [];
+      for (String localId in localIds) {
+        if (localId != null) {
+          await localService
+              .findLocalAfterId(localId)
+              .then((local) => locals.add(local));
+        }
       }
+      return locals;
     }
-    return locals;
+    return [];
   }
 
   /*
@@ -468,6 +488,11 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  /*
+  * Creates a new notification object based on
+  * the notification that is received through
+  * Firebase Messaging and saves it in the database.
+  * */
   _serializeNotification(Map<String, dynamic> message) {
     final data = message['data'];
     final String title = data['title'];
@@ -480,7 +505,7 @@ class _DashboardPageState extends State<DashboardPage> {
     if (title == 'Reservation accepted') {
       String message = _createMessageResponseReservation(data);
       model.Notification notificationReservation =
-      _createNotificationReservationAcccepted(message, data);
+      _createNotificationReservationAccepted(message, data);
       _notificationService.addNotification(notificationReservation);
     }
     if (title == 'Reservation declined') {
@@ -491,6 +516,10 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  /*
+  * Creates a new notification containing a message with
+  * a new reservation that will be sent to the local.
+  * */
   model.Notification _createNotificationNewReservation(String message, data) {
     model.Notification notificationReservation = model.Notification();
     notificationReservation.message = message;
@@ -501,7 +530,12 @@ class _DashboardPageState extends State<DashboardPage> {
     return notificationReservation;
   }
 
-  model.Notification _createNotificationReservationAcccepted(
+  /*
+  * Creates a new notification containing a message with
+  * the accepted response from the client that will be sent
+  * to the client.
+  * */
+  model.Notification _createNotificationReservationAccepted(
       String message, data) {
     model.Notification notificationReservation = model.Notification();
     notificationReservation.message = message;
@@ -515,6 +549,11 @@ class _DashboardPageState extends State<DashboardPage> {
     return notificationReservation;
   }
 
+  /*
+  * Creates a new notification containing a message with
+  * the declined response from the client that will be sent
+  * to the client.
+  * */
   model.Notification _createNotificationReservationDeclined(
       String message, data) {
     model.Notification notificationReservation = model.Notification();
@@ -529,6 +568,9 @@ class _DashboardPageState extends State<DashboardPage> {
     return notificationReservation;
   }
 
+  /*
+  * Creates a text message for a new reservation.
+  * */
   String _createMessageNewReservation(data) {
     String message = '';
     message +=
@@ -553,6 +595,10 @@ class _DashboardPageState extends State<DashboardPage> {
     return message;
   }
 
+  /*
+  * Creates a text message for a response to the
+  * reservation that will be seen by the client.
+  * */
   String _createMessageResponseReservation(data) {
     String message = data['message'];
     message += "\n";
@@ -568,6 +614,12 @@ class _DashboardPageState extends State<DashboardPage> {
     return message;
   }
 
+  /*
+  * Searches for the notifications of the
+  * local/client, returns them and opens a new
+  * Notification Screen were the found unread
+  * notifications are displayed.
+  */
   _checkReservations() async {
     Local local;
     List<model.Notification> notifications = [];
@@ -596,7 +648,10 @@ class _DashboardPageState extends State<DashboardPage> {
             NotificationsScreen(notifications: notifications)));
   }
 
-  //TODO REFACTOR
+  /*
+  * Displays the number of the unread notifications
+  * and updates it if a new notification is received.
+  * */
   _counterNotifications() async {
     Local local;
     List<model.Notification> notifications = [];

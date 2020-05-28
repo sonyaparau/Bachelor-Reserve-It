@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reserve_it_app/models/user.dart';
 import 'package:reserve_it_app/models/current_location.dart';
+import 'package:reserve_it_app/screens/screenUtils/input_validators.dart';
 import 'package:reserve_it_app/screens/screenUtils/number_prefix.dart';
 import 'package:reserve_it_app/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -21,16 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService _authService = new AuthService();
   final CustomWidgets _utils = new CustomWidgets();
 
-  // Phone mobile number must start with +4 and
-  // continue with 07 followed by 8 digits as it
-  //is a Romanian number
-  RegExp _phoneValidator = new RegExp(
-    r"07[0-9]{8}",
-    caseSensitive: false,
-    multiLine: false,
-  );
-
-  //TODO add comments
   String _phoneNumber;
   String _smsCode;
   String _verificationId;
@@ -48,44 +39,57 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.white,
             resizeToAvoidBottomPadding: true,
             body: new Center(
-                child: new Container(
-                    width: !kIsWeb ? 320 : 370,
-                    padding: new EdgeInsets.all(4.0),
-                    child: SingleChildScrollView(
-                        child: new Form(
-                      key: formKey,
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:
-                              //if the Platform is Android/Ios then allow logging in with phone number
-                              !kIsWeb
-                                  ? <Widget>[
-                                        Image.asset(
-                                          'assets/reserve_logo.png',
-                                          height: 300,
-                                        ),
-                                        _utils.getHeightSizedBox(10.0)
-                                      ] +
-                                      getMobileForm() +
-                                      [
-                                        getGoogleButton(),
-                                        _utils.getHeightSizedBox(10.0),
-                                        getFacebookButton()
-                                      ]
-                                  //if the Platform is Web then allow logging in anonymously
-                                  : <Widget>[
-                                        Image.asset(
-                                          'assets/reserve_logo.png',
-                                          height: 300,
-                                        )
-                                      ] +
-                                      [
-                                        getAnonymousButton(),
-                                        _utils.getHeightSizedBox(10.0),
-                                        getGoogleButton()
-                                      ]),
-                    )))));
+              child: new Container(
+                width: !kIsWeb ? 320 : 370,
+                padding: new EdgeInsets.all(4.0),
+                child: SingleChildScrollView(
+                  child: new Form(
+                    key: formKey,
+                    child: _buildColumnLoginForm(),
+                  ),
+                ),
+              ),
+            ),
+          );
+  }
+
+  /*
+  * @return the column for the login form
+  * */
+  Column _buildColumnLoginForm() {
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:
+            //if the Platform is Android/Ios then allow logging in with phone number
+            !kIsWeb
+                ? <Widget>[
+                      _buildImageAppLogo(),
+                      _utils.getHeightSizedBox(10.0)
+                    ] +
+                    getMobileForm() +
+                    [
+                      getGoogleButton(),
+                      _utils.getHeightSizedBox(10.0),
+                      getFacebookButton()
+                    ]
+                //if the Platform is Web then allow logging in anonymously
+                : <Widget>[_buildImageAppLogo()] +
+                    [
+                      getAnonymousButton(),
+                      _utils.getHeightSizedBox(10.0),
+                      getGoogleButton()
+                    ]);
+  }
+
+  /*
+  * @return image with the app logo
+  * */
+  Image _buildImageAppLogo() {
+    return Image.asset(
+      'assets/reserve_logo.png',
+      height: 300,
+    );
   }
 
   /*
@@ -260,44 +264,11 @@ class _LoginPageState extends State<LoginPage> {
   * */
   List<Widget> getMobileForm() {
     return [
-          new Row(
-            children: <Widget>[
-              new Flexible(child: buildDropdownButtonPhoneNr()),
-              _utils.getWidthSizedBox(5.0),
-              new Flexible(
-                  child: new TextFormField(
-                keyboardType: TextInputType.phone,
-                decoration: new InputDecoration(
-                    labelText: 'Phone number',
-                    labelStyle: TextStyle(fontSize: 18)),
-                validator: (value) {
-                  if (value.isEmpty) return 'Phone number is required!';
-                  if (!_phoneValidator.hasMatch(value.trim()))
-                    return 'Phone number format is invalid!';
-                  return null;
-                },
-                onSaved: (value) => _phoneNumber = value,
-              )),
-            ],
-          ),
+          _buildRowPhoneNumber(),
           _utils.getHeightSizedBox(8.0)
         ] +
         [
-          _sentVerificationCode
-              ? TextFormField(
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                      labelText: 'Enter SMS code',
-                      labelStyle: TextStyle(fontSize: 18)),
-                  validator: (value) {
-                    if (value.isEmpty) return 'SMS code cannot be empty!';
-                    if (value.length != 6)
-                      return 'SMS code must have 6 characters!';
-                    return null;
-                  },
-                  onSaved: (value) => _smsCode = value,
-                )
-              : Container()
+          _buildWidgetSmsCode()
         ] +
         [
           _utils.getHeightSizedBox(15.0),
@@ -306,6 +277,55 @@ class _LoginPageState extends State<LoginPage> {
               : getVerifyButton('Verify phone number'),
           _utils.getHeightSizedBox(10.0),
         ];
+  }
+
+  /*
+  * @return row for the sms code input field.
+  * The sms contains exactly 6 digits.
+  * */
+  Widget _buildWidgetSmsCode() {
+    return _sentVerificationCode
+            ? TextFormField(
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    labelText: 'Enter SMS code',
+                    labelStyle: TextStyle(fontSize: 18)),
+                validator: (value) {
+                  if (value.isEmpty) return 'SMS code cannot be empty!';
+                  if (value.length != 6)
+                    return 'SMS code must have 6 characters!';
+                  return null;
+                },
+                onSaved: (value) => _smsCode = value,
+              )
+            : Container();
+  }
+
+  /*
+  * @return row for the phone input field.
+  * The number is validated.
+  * */
+  Row _buildRowPhoneNumber() {
+    return new Row(
+          children: <Widget>[
+            new Flexible(child: buildDropdownButtonPhoneNr()),
+            _utils.getWidthSizedBox(5.0),
+            new Flexible(
+                child: new TextFormField(
+              keyboardType: TextInputType.phone,
+              decoration: new InputDecoration(
+                  labelText: 'Phone number',
+                  labelStyle: TextStyle(fontSize: 18)),
+                  validator: (value) {
+                if (value.isEmpty) return 'Phone number is required!';
+                if (!InputValidators.phoneValidator.hasMatch(value.trim()))
+                  return 'Phone number format is invalid!';
+                return null;
+              },
+              onSaved: (value) => _phoneNumber = value,
+            )),
+          ],
+        );
   }
 
   /*
@@ -361,7 +381,7 @@ class _LoginPageState extends State<LoginPage> {
           email: value.user.email,
           phone: value.user.phoneNumber,
           photoUrl: value.user.photoUrl,
-      favouriteLocals: []);
+          favouriteLocals: []);
       UserService().addUser(user);
     }).catchError((onError) {
       setLoadingState(false);

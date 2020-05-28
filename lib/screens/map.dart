@@ -23,16 +23,18 @@ class _MapState extends State<Map> {
 
   //Cluj center points
   static const LatLng _center = const LatLng(46.769905, 23.588890);
+  LatLng _lastMapPosition = _center;
 
   //set with all the points of the found restaurants
   Set<Marker> _markers = {};
 
-  LatLng _lastMapPosition = _center;
   MapType _currentMapType = MapType.normal;
   List<Local> locals;
   CustomWidgets _customWidgets = CustomWidgets();
 
+  //current user's location
   BitmapDescriptor pinLocationIcon;
+  //distance between the user and the local
   double _km = -1;
 
   _MapState(this.locals) {
@@ -40,6 +42,12 @@ class _MapState extends State<Map> {
     setCustomMapPin();
   }
 
+  /*
+  * Sets the user location on the map, if this is
+  * provided. A special icon will be displayed on
+  * the marker to differentiate the location of the
+  * user and the location of the locals.
+  * */
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5, size: Size(10.0, 15.0)),
@@ -49,15 +57,7 @@ class _MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     var userLocation = Provider.of<CurrentUserLocation>(context);
-    bool activatedLocation = false;
-    if (userLocation != null) {
-      _markers.add(Marker(
-          markerId: MarkerId('userLocation'),
-          position: LatLng(userLocation.latitude, userLocation.longitude),
-          infoWindow: InfoWindow(title: 'You are here 🙂'),
-          icon: pinLocationIcon));
-      activatedLocation = true;
-    }
+    bool activatedLocation = _setLocationUser(userLocation);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -72,32 +72,64 @@ class _MapState extends State<Map> {
         ),
         body: Stack(
           children: [
-            GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition:
-                  CameraPosition(target: _center, zoom: 11.0),
-              mapType: _currentMapType,
-              markers: _markers,
-              onCameraMove: _onCameraMove,
-            ),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Column(
-                  children: [
-                    getButton(_onMapTypeButtonPressed, Icons.map),
-                    _customWidgets.getHeightSizedBox(16.0),
-                    getButton(_goToPosition, Icons.location_searching)
-                  ],
-                ),
-              ),
-            ),
+            _buildGoogleMap(),
+            _buildButtonsMap(),
             buildContainer(activatedLocation)
           ],
         ),
       ),
     );
+  }
+
+  /*
+  * Add a new marker for the user's location if this
+  * is provided and return true. Otherwise, return false.
+  * */
+  bool _setLocationUser(CurrentUserLocation userLocation) {
+    bool activatedLocation = false;
+    if (userLocation != null) {
+      _markers.add(Marker(
+          markerId: MarkerId('userLocation'),
+          position: LatLng(userLocation.latitude, userLocation.longitude),
+          infoWindow: InfoWindow(title: 'You are here 🙂'),
+          icon: pinLocationIcon));
+      activatedLocation = true;
+    }
+    return activatedLocation;
+  }
+
+  /*
+  * Build buttons for the map. On pressed, this
+  * change the location on the map.
+  * */
+  Padding _buildButtonsMap() {
+    return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Column(
+                children: [
+                  getButton(_onMapTypeButtonPressed, Icons.map),
+                  _customWidgets.getHeightSizedBox(16.0),
+                  getButton(_goToPosition, Icons.location_searching)
+                ],
+              ),
+            ),
+          );
+  }
+
+  /*
+  * @return Google map
+  * */
+  GoogleMap _buildGoogleMap() {
+    return GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition:
+                CameraPosition(target: _center, zoom: 11.0),
+            mapType: _currentMapType,
+            markers: _markers,
+            onCameraMove: _onCameraMove,
+          );
   }
 
   //position of the central part of the city Cluj
@@ -107,11 +139,18 @@ class _MapState extends State<Map> {
       tilt: 23.588890,
       zoom: 15.0);
 
+  /*
+  * Changes the position on the map depending
+  * on the pressed local and its location.
+  * */
   Future<void> _goToPosition() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_position));
   }
 
+  /*
+  * Creates a Google Map cotroller.
+  * */
   _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
   }
@@ -120,6 +159,10 @@ class _MapState extends State<Map> {
     _lastMapPosition = position.target;
   }
 
+  /*
+  * Creates a button displayed on the map based
+  * on the given parameters.
+  * */
   Widget getButton(Function function, IconData iconData) {
     return FloatingActionButton(
         onPressed: function,
@@ -129,6 +172,11 @@ class _MapState extends State<Map> {
         child: Icon(iconData, size: 36.0));
   }
 
+  /*
+  * Displays the map in two moods, based on the
+  * user's preference: normal map or with a view
+  * from the satellite.
+  * */
   _onMapTypeButtonPressed() {
     setState(() {
       _currentMapType = _currentMapType == MapType.normal
@@ -137,6 +185,9 @@ class _MapState extends State<Map> {
     });
   }
 
+  /*
+  * Adds the set of markers on the Map.
+  * */
   addMarkersOnMap() {
     locals.forEach((element) {
       _markers.add(Marker(
