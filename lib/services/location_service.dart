@@ -19,6 +19,7 @@ class LocationService {
   Stream<CurrentUserLocation> get locationStream => _locationController.stream;
 
   LocationService() {
+    //requests permission from user to see take its location
     location.requestPermission().then((granted) {
       if (granted != null) {
         location.onLocationChanged().listen((locationData) {
@@ -32,6 +33,9 @@ class LocationService {
     });
   }
 
+  /*
+  * Returns the current location of a user.
+  * */
   Future<CurrentUserLocation> getLocation() async {
     try {
       var userLocation = await location.getLocation();

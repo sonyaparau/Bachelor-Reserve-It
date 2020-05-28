@@ -84,6 +84,10 @@ class LocalService {
     return locals.toSet().toList();
   }
 
+  /*
+  * Returns the local that has the given phone number.
+  * If no local is found, then it returns null.
+  * */
   Future<Local> searchLocalByPhoneNumber(String phoneNumber) async {
     QuerySnapshot snapshot = await localCollection.getDocuments();
     Local foundLocal;

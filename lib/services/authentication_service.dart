@@ -139,6 +139,11 @@ class AuthService {
     }
   }
 
+  /*
+  * Checks if the logged user is anonymous.
+  * @return   true- if the user is anon,
+  *           false otherwise
+  * */
   Future<bool> isAnonymousUser() async{
     bool isAnon = false;
     try {
@@ -150,6 +155,10 @@ class AuthService {
     }
   }
 
+  /*
+  * Returns the current logged user. If the user
+  * is anonymous, then only the UID is returned.
+  * */
   Future<User> getUser() async {
     User user;
     FirebaseUser temporaryUser;

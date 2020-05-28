@@ -63,12 +63,12 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     DeviceService().getDeviceToken();
-    initialize();
+//    initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-//    initialize();
+    initialize();
     _counterNotifications();
     return Scaffold(
 
@@ -474,7 +474,7 @@ class _DashboardPageState extends State<DashboardPage> {
       notificationReservation.type = NotificationType.REQUEST.index;
       notificationReservation.status = ReservationStatus.PENDING.index;
       _notificationService
-          .addNewNotificationReservation(notificationReservation);
+          .addNotification(notificationReservation);
     }
     if (title == 'Reservation accepted') {
       String message = _createMessageResponseReservation(data);
@@ -488,7 +488,7 @@ class _DashboardPageState extends State<DashboardPage> {
       notificationReservation.type = NotificationType.RESPONSE.index;
       notificationReservation.status = ReservationStatus.ACCEPTED.index;
       _notificationService
-          .addNewNotificationReservation(notificationReservation);
+          .addNotification(notificationReservation);
     }
     if (title == 'Reservation declined') {
       String message = _createMessageResponseReservation(data);
@@ -502,7 +502,7 @@ class _DashboardPageState extends State<DashboardPage> {
       notificationReservation.type = NotificationType.RESPONSE.index;
       notificationReservation.status = ReservationStatus.DECLINED.index;
       _notificationService
-          .addNewNotificationReservation(notificationReservation);
+          .addNotification(notificationReservation);
     }
   }
 

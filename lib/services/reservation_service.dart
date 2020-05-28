@@ -8,9 +8,14 @@ import 'package:reserve_it_app/models/user.dart';
 * Service for the entity Reservation.
 * */
 class ReservationService {
+  //reservation collection
   final CollectionReference reservationCollection =
       Firestore.instance.collection('reservations');
 
+  /*
+  * Creates a document for a reservation entity and saves it
+  * to the database.
+  * */
   Future addReservation(Reservation reservation, DateTime dateTime) async {
     return await reservationCollection.document().setData({
       'numberPeople': reservation.numberPeople,
@@ -24,17 +29,26 @@ class ReservationService {
       'status': reservation.status.index,
       'device': reservation.deviceToSend,
       'userDevice': reservation.userDevice,
-      'localName' : reservation.local.name,
-      'localPicture' : reservation.local.mainPhoto,
+      'localName': reservation.local.name,
+      'localPicture': reservation.local.mainPhoto,
       'dateTime': dateTime
     });
   }
 
-  updateReservationStatus(Map<String, dynamic> data, String reservationId) {
+  /*
+  * Updates a reservation document based on the data provided
+  * in the map. The document is found after the reservation id.
+  * */
+  updateReservation(Map<String, dynamic> data, String reservationId) {
     reservationCollection.document(reservationId).updateData(data);
   }
 
-  Future<List<Reservation>> getReservationsHistory(String userId) async{
+  /*
+  * Returns a future list of the past reservations that were accepted
+  * by the local. The list is returned for a specific user based on
+  * its id.
+  * */
+  Future<List<Reservation>> getReservationsHistory(String userId) async {
     List<Reservation> pastReservations = [];
     QuerySnapshot snapshot = await reservationCollection
         .where('person', isEqualTo: userId)
@@ -49,7 +63,12 @@ class ReservationService {
     return pastReservations;
   }
 
-  Future<List<Reservation>> getFutureReservations(String userId) async{
+  /*
+  * Returns a future list of the future reservations that were accepted
+  * by the local. The list is returned for a specific user based on
+  * its id.
+  * */
+  Future<List<Reservation>> getFutureReservations(String userId) async {
     List<Reservation> futureReservations = [];
     QuerySnapshot snapshot = await reservationCollection
         .where('person', isEqualTo: userId)
@@ -64,15 +83,22 @@ class ReservationService {
     return futureReservations;
   }
 
-  Reservation _buildReservationEntity(DocumentSnapshot document, Map<String, dynamic> data, String userId) {
+  /*
+  * Creates a reservation object based on the data retrieved form the
+  * database that is sent through a map.
+  * */
+  Reservation _buildReservationEntity(
+      DocumentSnapshot document, Map<String, dynamic> data, String userId) {
     Reservation reservation = Reservation();
     reservation.id = document.documentID;
     reservation.numberPeople = data['numberPeople'];
     reservation.date = data['resDate'];
     reservation.time = data['resTime'];
-    Local local = Local(mainPhoto: data['localPicture'], name: data['localName']);
+    Local local =
+        Local(mainPhoto: data['localPicture'], name: data['localName']);
     reservation.local = local;
-    reservation.user = User(uid:  userId, firstName: data['firstName'], lastName: data['lastName']);
+    reservation.user = User(
+        uid: userId, firstName: data['firstName'], lastName: data['lastName']);
     return reservation;
   }
 }

@@ -348,7 +348,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   * */
   _updateReservation(bool confirmed, String reservationId) {
     Map<String, dynamic> updateData = _generateUpdateData(confirmed);
-    _reservationService.updateReservationStatus(updateData, reservationId);
+    _reservationService.updateReservation(updateData, reservationId);
   }
 
   /*
