@@ -319,7 +319,7 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (value) {
                 if (value.isEmpty) return 'Phone number is required!';
                 if (!InputValidators.phoneValidator.hasMatch(value.trim()))
-                  return 'Phone number format is invalid!';
+                  return 'Invalid phone number!';
                 return null;
               },
               onSaved: (value) => _phoneNumber = value,
