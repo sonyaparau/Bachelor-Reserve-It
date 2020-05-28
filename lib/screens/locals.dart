@@ -55,7 +55,7 @@ class _LocalsScreenState extends State<LocalsScreen> {
 
   Container buildContainerEmptyListView() {
     return Container(
-        child: Text('No table has been found ☹️',
+        child: Text('No local has been found ☹️',
             style: TextStyle(fontSize: 20.0)));
   }
 

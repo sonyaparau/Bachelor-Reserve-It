@@ -458,37 +458,35 @@ class _DashboardPageState extends State<DashboardPage> {
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
       print('onMessage $message');
-      _serializeAndNavigate(message);
+      _serializeNotification(message);
     }, onResume: (Map<String, dynamic> message) async {
       print('onResume $message');
-      _serializeAndNavigate(message);
+      _serializeNotification(message);
     }, onLaunch: (Map<String, dynamic> message) async {
       print('onLaunch $message');
-      _serializeAndNavigate(message);
+      _serializeNotification(message);
     });
   }
 
-  _serializeAndNavigate(Map<String, dynamic> message) {
-    _counterNotifications();
-    final notification = message['notification'];
+  _serializeNotification(Map<String, dynamic> message) {
     final data = message['data'];
-    final String title = notification['title'];
+    final String title = data['title'];
     if (title == 'New reservation') {
       String message = _createMessageNewReservation(data);
       model.Notification notificationReservation =
-          _createNotificationNewReservation(message, data);
+      _createNotificationNewReservation(message, data);
       _notificationService.addNotification(notificationReservation);
     }
     if (title == 'Reservation accepted') {
       String message = _createMessageResponseReservation(data);
       model.Notification notificationReservation =
-          _createNotificationReservationAcccepted(message, data);
+      _createNotificationReservationAcccepted(message, data);
       _notificationService.addNotification(notificationReservation);
     }
     if (title == 'Reservation declined') {
       String message = _createMessageResponseReservation(data);
       model.Notification notificationReservation =
-          _createNotificationReservationDeclined(message, data);
+      _createNotificationReservationDeclined(message, data);
       _notificationService.addNotification(notificationReservation);
     }
   }

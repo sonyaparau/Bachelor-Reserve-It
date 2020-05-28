@@ -81,7 +81,7 @@ class LocalSearch extends SearchDelegate<String> {
     } else {
       return new Center(
           child: new Container(
-              child: Text('No table has been found ☹️',
+              child: Text('No local has been found ☹️',
                   style: TextStyle(fontSize: 20.0))));
     }
   }
@@ -99,7 +99,7 @@ class LocalSearch extends SearchDelegate<String> {
 
     return ListView.builder(
         itemBuilder: (context, index) => ListTile(
-              leading: Icon(Icons.local_dining, color: Colors.grey),
+              leading: Icon(Icons.account_balance, color: Colors.grey),
               title: RichText(
                   text: TextSpan(
                       text: options[index].substring(0, query.length),
