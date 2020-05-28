@@ -235,7 +235,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                       labelStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
                     if (value.isEmpty) return 'Phone number is required!';
-                    if (value.length != 10 && InputValidators.phoneValidator.allMatches(value).length != 1)
+                    if (value.length != 10 || InputValidators.phoneValidator.allMatches(value).length != 1)
                       return 'Invalid number format!';
                     return null;
                   },
