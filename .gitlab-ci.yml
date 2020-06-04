@@ -1,0 +1,14 @@
+image: cirrusci/flutter:stable
+
+stages:
+  - build-apk
+
+build_apk:
+  stage: build-apk
+  script:
+    - flutter build apk
+    - flutter test
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist/andorid
