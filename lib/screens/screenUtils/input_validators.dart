@@ -5,16 +5,6 @@
 class InputValidators {
 
   /*
-  * Validates a Romanian phone number which starts
-  * with 07 and continues with exactly 8 digits.
-  * */
-  static RegExp phoneValidator = new RegExp(
-    r"07[0-9]{8}",
-    caseSensitive: false,
-    multiLine: false,
-  );
-
-  /*
    * Validates the number of persons for a
    * reservation. This must be a number greater
    * than 0.
@@ -29,16 +19,57 @@ class InputValidators {
     }
   }
 
+  static bool validateEmail(String email) {
+    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /*
    * Validates the first/last name
    * */
   static bool validateName(String name) {
-    RegExp nameValidator = new RegExp(
-      r"([A-Z])+[A-Za-z\s-]*",
-      caseSensitive: false,
-      multiLine: false,
-    );
-    if (nameValidator.hasMatch(name)) return true;
-    return false;
+    if(RegExp('[0-9!@#%^&*()_+>?<]').hasMatch(name)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /*
+  * Checks if a field is empty and returns
+  * the response.
+  * */
+  static bool checkEmptyField(String field) {
+    if(field.isEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  /*
+  * Check if the sms code is of length 6 and
+  * contains only digits.
+  * */
+  static bool validSMSCodeLength(String smsCode) {
+    if(smsCode.length != 6 || RegExp('[a-zA-Z>?_ !@#%^*()]').hasMatch(smsCode)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /*
+  * Phone number must have exactly 10 digits.
+  * */
+  static bool validPhoneNumber(String phoneNumber) {
+    if(phoneNumber.length != 10 || RegExp('[a-zA-Z>?_ !@#%^*()]').hasMatch(phoneNumber)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }

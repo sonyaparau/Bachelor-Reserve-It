@@ -205,7 +205,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                 labelText: 'Number of people',
                 labelStyle: TextStyle(fontSize: 15)),
             validator: (value) {
-              if (value.isEmpty) return 'Number of people is required!';
+              if (InputValidators.checkEmptyField(value)) return 'Number of people is required!';
               if (!InputValidators.validateNumberPersons(value))
                 return 'Number must be greater than 0!';
               return null;
@@ -234,9 +234,8 @@ class _ReservationDialogState extends State<ReservationDialog> {
                       labelText: 'Phone number',
                       labelStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
-                    if (value.isEmpty) return 'Phone number is required!';
-                    if (value.length != 10 || InputValidators.phoneValidator.allMatches(value).length != 1)
-                      return 'Invalid number format!';
+                    if (InputValidators.checkEmptyField(value)) return 'Phone number is required!';
+                    if (!InputValidators.validPhoneNumber(value.trim())) return 'Invalid number format!';
                     return null;
                   },
                   onSaved: (value) => _phoneNumber = value,
@@ -264,7 +263,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                       labelText: 'Last name',
                       labelStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
-                    if (value.isEmpty) return 'Last name is required!';
+                    if (InputValidators.checkEmptyField(value)) return 'Last name is required!';
                     if (!InputValidators.validateName(value))
                       return 'Invalid name format!';
                     return null;
@@ -294,7 +293,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                       labelText: 'First name',
                       labelStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
-                    if (value.isEmpty) return 'First name is required!';
+                    if (InputValidators.checkEmptyField(value)) return 'First name is required!';
                     if (!InputValidators.validateName(value))
                       return 'Invalid name format!';
                     return null;
@@ -496,7 +495,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
     }
     if (_loggedUser.phone == null) {
       updateData.putIfAbsent('phoneNumber', () => _phoneNumber);
-      _loggedUser.phone = _phoneNumber;
+      _loggedUser.phone = '+4' + _phoneNumber;
     }
     if (updateData.isNotEmpty) {
       bool isAnon;

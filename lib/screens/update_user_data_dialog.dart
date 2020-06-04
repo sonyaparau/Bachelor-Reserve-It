@@ -170,8 +170,8 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
       decoration: new InputDecoration(
           labelText: 'Phone number', labelStyle: TextStyle(fontSize: 15)),
       validator: (value) {
-        if (value.isEmpty) return 'Phone number is required!';
-        //todo validate
+        if (InputValidators.checkEmptyField(value)) return 'Phone number is required!';
+        if (!InputValidators.validPhoneNumber(value.trim())) return 'Invalid format!';
         return null;
       },
       onSaved: (value) => _phone = value,
@@ -189,8 +189,8 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
       decoration: new InputDecoration(
           labelText: 'Email', labelStyle: TextStyle(fontSize: 15)),
       validator: (value) {
-        if (value.isEmpty) return 'Email is required!';
-        //TODO validate email
+        if (InputValidators.checkEmptyField(value)) return 'Email is required!';
+        if (!InputValidators.validateEmail(value.trim())) return 'Email is invalid!';
         return null;
       },
       onSaved: (value) => _email = value,
@@ -208,7 +208,7 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
       decoration: new InputDecoration(
           labelText: 'Last name', labelStyle: TextStyle(fontSize: 15)),
       validator: (value) {
-        if (value.isEmpty) return 'Last name is required!';
+        if (InputValidators.checkEmptyField(value)) return 'Last name is required!';
         if (!InputValidators.validateName(value)) return 'Invalid name format!';
         return null;
       },
@@ -227,7 +227,7 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
       decoration: new InputDecoration(
           labelText: 'First name', labelStyle: TextStyle(fontSize: 15)),
       validator: (value) {
-        if (value.isEmpty) return 'First name is required!';
+        if (InputValidators.checkEmptyField(value)) return 'First name is required!';
         if (!InputValidators.validateName(value)) return 'Invalid name format!';
         return null;
       },

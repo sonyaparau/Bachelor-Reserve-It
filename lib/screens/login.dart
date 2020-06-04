@@ -291,9 +291,8 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: 'Enter SMS code',
                     labelStyle: TextStyle(fontSize: 18)),
                 validator: (value) {
-                  if (value.isEmpty) return 'SMS code cannot be empty!';
-                  if (value.length != 6)
-                    return 'SMS code must have 6 characters!';
+                  if (InputValidators.checkEmptyField(value)) return 'SMS code cannot be empty!';
+                  if (!InputValidators.validSMSCodeLength(value)) return 'SMS code must have 6 digits!';
                   return null;
                 },
                 onSaved: (value) => _smsCode = value,
@@ -317,9 +316,8 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: 'Phone number',
                   labelStyle: TextStyle(fontSize: 18)),
                   validator: (value) {
-                if (value.isEmpty) return 'Phone number is required!';
-                if (!InputValidators.phoneValidator.hasMatch(value.trim()))
-                  return 'Invalid phone number!';
+                if (InputValidators.checkEmptyField(value)) return 'Phone number is required!';
+                if (!InputValidators.validPhoneNumber(value.trim())) return 'Invalid phone number!';
                 return null;
               },
               onSaved: (value) => _phoneNumber = value,
